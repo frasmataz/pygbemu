@@ -1,8 +1,7 @@
+from events import Events
 from graphics import Graphics
 import mmu
 import sys
-import sdl2
-import sdl2.ext
 import time
 from timeit import default_timer as timer
 
@@ -34,22 +33,16 @@ def run():
         if PREFS['debug_perf']:
             frame_time_start = timer()
 
-        get_events()
+        events = gfx.get_events()
+        if events == Events.QUIT:
+            running = false
+            break
+
         gfx.draw_test_pattern()
 
         if PREFS['debug_perf']:
             frame_time_end = timer()
             print("%.2f" % (1 / (frame_time_end - frame_time_start)), "fps")
-
-def get_events(): 
-  for e in sdl2.ext.get_events():
-    if e.type == sdl2.SDL_QUIT:
-      running = False
-      break
-    if e.type == sdl2.SDL_KEYDOWN:
-      if e.key.keysym.sym == sdl2.SDLK_ESCAPE:
-        running = False
-        break
 
 if __name__ == '__main__':
     sys.exit(run())
