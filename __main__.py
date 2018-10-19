@@ -28,6 +28,8 @@ def run():
                 "%.4f" % (gfx_init_time_end - gfx_init_time_start),
                 "seconds")
 
+    test_pattern = gfx.get_test_pattern()
+    last_fps_message_time = timer()
     running = True
     while running:
         if PREFS['debug_perf']:
@@ -35,14 +37,16 @@ def run():
 
         events = gfx.get_events()
         if events == Events.QUIT:
-            running = false
+            running = False
             break
 
-        gfx.draw_test_pattern()
+        gfx.draw(test_pattern)
 
         if PREFS['debug_perf']:
             frame_time_end = timer()
-            print("%.2f" % (1 / (frame_time_end - frame_time_start)), "fps")
+            if (timer() - last_fps_message_time) > 1:
+                print("%.2f" % (1 / (frame_time_end - frame_time_start)), "fps")
+                last_fps_message_time = timer()
 
 if __name__ == '__main__':
     sys.exit(run())

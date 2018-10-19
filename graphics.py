@@ -1,30 +1,20 @@
 from events import Events
 import pygame
 from pygame import PixelArray
+import numpy as np
 
 class Graphics:
-    def draw_test_pattern(self):
-        #for x in range(0, self.GB_PARAMS['screen_res'][0]):
-        #    for y in range(0, self.GB_PARAMS['screen_res'][1]):
-        #        self.renderer.draw_point(
-        #                [x,y], 
-        #                sdl2.ext.Color(
-        #                    (x/self.GB_PARAMS['screen_res'][0])*255, 
-        #                    (y/self.GB_PARAMS['screen_res'][1])*255, 
-        #                    255
-        #                )
-        #            )
+    def get_test_pattern(self):
+        pixel_values = np.zeros(shape=(self.GB_PARAMS['screen_res'][0], self.GB_PARAMS['screen_res'][1],3), dtype='uint8')
 
-        #self.renderer.present()
-
-        screen_buf = PixelArray(self.screen)
         for x in range(0, self.GB_PARAMS['screen_res'][0]):
             for y in range(0, self.GB_PARAMS['screen_res'][1]):
-                screen_buf[x][y] = (
-                            (x/self.GB_PARAMS['screen_res'][0])*255,
-                            (y/self.GB_PARAMS['screen_res'][1])*255,
-                            255
-                        )
+                pixel_values[x][y] = [int(x%2 + y%2*128),int(x%2 + y%2*128),int(x%2 + y%2*128)]
+
+        return pixel_values
+
+    def draw(self, pixel_values):
+        pygame.surfarray.blit_array(self.screen, pixel_values)
         self.clock.tick(60)
         pygame.display.flip()
 
