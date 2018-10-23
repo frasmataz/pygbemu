@@ -33,7 +33,7 @@ def run():
     gfx = Graphics(GB_PARAMS)
 
     # Prepare graphics test pattern
-    test_pattern = gfx.get_test_pattern()
+    test_pattern = gfx.get_test_pattern(rom_file)
 
     # Initialise performance timers if requested
     if PREFS['debug_perf']:
