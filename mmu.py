@@ -17,16 +17,19 @@ class MMU:
 
         # Cartridge headers 0x0100-0x014F
         elif addr >= 0x0100 and addr <= 0x014F:
-            # return self.ROM[addr]
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0x0100
+            return self.ROM[addr_adj]
 
         # Cartrige ROM bank 0 0x0150-0x3FFF
         elif addr >= 0x0150 and addr <= 0x3FFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0x0150
+            return self.ROM[addr_adj]
 
         # Cartrige ROM switchable bank 0x4000-0x7FFF
         elif addr >= 0x4000 and addr <= 0x7FFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            # TODO: Implement bank switching; currently just 32K max rom size
+            addr_adj = addr - 0x0150
+            return self.ROM[addr_adj]
 
         # Character RAM 0x8000-0x97FF
         elif addr >= 0x8000 and addr <= 0x97FF:
