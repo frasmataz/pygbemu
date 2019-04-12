@@ -1,5 +1,6 @@
 from events import Events
 from graphics import Graphics
+from mmu import MMU
 import sys
 from timeit import default_timer as timer
 
@@ -29,11 +30,14 @@ def run():
         print('No ROM file specified!')
         return 1
 
+    # Initialise MMU - Memory controller
+    mmu = MMU(rom_file)
+
     # Initialise the graphics module
     gfx = Graphics(GB_PARAMS)
 
     # Prepare graphics test pattern
-    test_pattern = gfx.get_test_pattern(rom_file)
+    test_pattern = gfx.get_test_pattern(mmu)
 
     # Initialise performance timers if requested
     if PREFS['debug_perf']:
