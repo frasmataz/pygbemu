@@ -12,6 +12,7 @@ class MMU:
         self.BG_MAP_2 = np.zeros(1024, dtype=np.uint8)
         self.OAM = np.zeros(1024, dtype=np.uint8)
         self.HIGH_RAM = np.zeros(127, dtype=np.uint8)
+        self.INTERRUPT = 0x00
 
     def get(self, addr):
         # Memory map reference: http://gameboy.mongenel.com/dmg/asmmemmap.html
@@ -76,7 +77,7 @@ class MMU:
 
         # Interrupt register 0xFFFF
         elif addr == 0xFFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            return self.INTERRUPT
 
         else:
             raise MemoryAccessError('Crazy out of range address requested from MMU: ' + str(addr))
@@ -141,7 +142,7 @@ class MMU:
 
         # Interrupt register 0xFFFF
         elif addr == 0xFFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            self.INTERRUPT = val
 
         else:
             print('Crazy out of range address requested from MMU: ' + str(addr))

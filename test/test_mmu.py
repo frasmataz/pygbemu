@@ -103,3 +103,10 @@ def test_high_ram():
 
     mmu.set(0xFFFE, 0xA0)
     assert mmu.get(0xFFFE) == 0xA0
+
+def test_interrupt_register():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0xFFFF, 0xA0)
+    assert mmu.get(0xFFFF) == 0xA0
