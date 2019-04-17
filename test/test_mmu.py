@@ -53,3 +53,43 @@ def test_external_ram():
 
     mmu.set(0xBFFF, 0xA0)
     assert mmu.get(0xBFFF) == 0xA0
+
+def test_char_ram():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0x8000, 0xA0)
+    assert mmu.get(0x8000) == 0xA0
+
+    mmu.set(0x97FF, 0xA0)
+    assert mmu.get(0x97FF) == 0xA0
+
+def test_bg_map_1():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0x9800, 0xA0)
+    assert mmu.get(0x9800) == 0xA0
+
+    mmu.set(0x9BFF, 0xA0)
+    assert mmu.get(0x9BFF) == 0xA0
+
+def test_bg_map_2():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0x9C00, 0xA0)
+    assert mmu.get(0x9C00) == 0xA0
+
+    mmu.set(0x9FFF, 0xA0)
+    assert mmu.get(0x9FFF) == 0xA0
+
+def test_oam():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0xFE00, 0xA0)
+    assert mmu.get(0xFE00) == 0xA0
+
+    mmu.set(0xFE9F, 0xA0)
+    assert mmu.get(0xFE9F) == 0xA0
