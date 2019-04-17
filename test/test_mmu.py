@@ -93,3 +93,13 @@ def test_oam():
 
     mmu.set(0xFE9F, 0xA0)
     assert mmu.get(0xFE9F) == 0xA0
+
+def test_high_ram():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+
+    mmu.set(0xFF80, 0xA0)
+    assert mmu.get(0xFF80) == 0xA0
+
+    mmu.set(0xFFFE, 0xA0)
+    assert mmu.get(0xFFFE) == 0xA0

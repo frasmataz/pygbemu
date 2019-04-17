@@ -11,6 +11,7 @@ class MMU:
         self.BG_MAP_1 = np.zeros(1024, dtype=np.uint8)
         self.BG_MAP_2 = np.zeros(1024, dtype=np.uint8)
         self.OAM = np.zeros(1024, dtype=np.uint8)
+        self.HIGH_RAM = np.zeros(127, dtype=np.uint8)
 
     def get(self, addr):
         # Memory map reference: http://gameboy.mongenel.com/dmg/asmmemmap.html
@@ -68,9 +69,10 @@ class MMU:
         elif addr >= 0xFF00 and addr <= 0xFF7F:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
-        # Zero Page 0xFF80-0xFFFE
+        # High RAM 0xFF80-0xFFFE
         elif addr >= 0xFF80 and addr <= 0xFFFE:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0xFF80
+            return self.HIGH_RAM[addr_adj]
 
         # Interrupt register 0xFFFF
         elif addr == 0xFFFF:
@@ -132,9 +134,10 @@ class MMU:
         elif addr >= 0xFF00 and addr <= 0xFF7F:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
-        # Zero Page 0xFF80-0xFFFE
+        # High RAM 0xFF80-0xFFFE
         elif addr >= 0xFF80 and addr <= 0xFFFE:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0xFF80
+            self.HIGH_RAM[addr_adj] = val
 
         # Interrupt register 0xFFFF
         elif addr == 0xFFFF:
