@@ -5,7 +5,8 @@ class MMU:
 
     def __init__(self, rom_file):
         self.ROM = rom_file
-        self.RAM = np.zeros(8192,dtype=np.uint8)
+        self.WORK_RAM = np.zeros(8192, dtype=np.uint8)
+        self.EXT_RAM = np.zeros(8192, dtype=np.uint8)
         self.VRAM = np.zeros(8192,dtype=np.uint8)
 
     def get(self, addr):
@@ -46,15 +47,13 @@ class MMU:
 
         # Cartridge RAM (if available) 0xA000-0xBFFF
         elif addr >= 0xA000 and addr <= 0xBFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0xA000
+            return self.EXT_RAM[addr_adj]
 
-        # Internal RAM Bank 0 0xC000-0xCFFF
-        elif addr >= 0xC000 and addr <= 0xCFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
-
-        # Internal RAM Bank 1-7 (Switchable CGB only) 0xD000-0xDFFF
-        elif addr >= 0xD000 and addr <= 0xDFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+        # Internal RAM 0xC000-0xDFFF
+        elif addr >= 0xC000 and addr <= 0xDFFF:
+            addr_adj = addr - 0xC000
+            return self.WORK_RAM[addr_adj]
 
         # Echo RAM (Reserved, shouldn't be used) 0xE000-0xFDFF
         elif addr >= 0xE000 and addr <= 0xFDFF:
@@ -84,7 +83,7 @@ class MMU:
             raise MemoryAccessError('Crazy out of range address requested from MMU: ' + str(addr))
 
 
-    def set(self, addr):
+    def set(self, addr, val):
 
         # Interrupt and RST Address 0 0x0000-0x00FF
         if addr >= 0x0000 and addr <= 0x00FF:
@@ -118,15 +117,13 @@ class MMU:
 
         # Cartridge RAM (if available) 0xA000-0xBFFF
         elif addr >= 0xA000 and addr <= 0xBFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            addr_adj = addr - 0xA000
+            self.EXT_RAM[addr_adj] = val
 
-        # Internal RAM Bank 0 0xC000-0xCFFF
-        elif addr >= 0xC000 and addr <= 0xCFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
-
-        # Internal RAM Bank 1-7 (Switchable CGB only) 0xD000-0xDFFF
-        elif addr >= 0xD000 and addr <= 0xDFFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+        # Internal RAM 0xC000-0xDFFF
+        elif addr >= 0xC000 and addr <= 0xDFFF:
+            addr_adj = addr - 0xC000
+            self.WORK_RAM[addr_adj] = val
 
         # Echo RAM (Reserved, shouldn't be used) 0xE000-0xFDFF
         elif addr >= 0xE000 and addr <= 0xFDFF:
