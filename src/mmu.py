@@ -1,5 +1,5 @@
 import numpy as np
-from Exceptions.memory_access_error import MemoryAccessError
+from src.exceptions.memory_access_error import MemoryAccessError
 
 class MMU:
 
@@ -7,7 +7,7 @@ class MMU:
         self.ROM = rom_file
         self.WORK_RAM = np.zeros(8192, dtype=np.uint8)
         self.EXT_RAM = np.zeros(8192, dtype=np.uint8)
-        self.VRAM = np.zeros(8192,dtype=np.uint8)
+        self.VRAM = np.zeros(8192, dtype=np.uint8)
 
     def get(self, addr):
         # Memory map reference: http://gameboy.mongenel.com/dmg/asmmemmap.html

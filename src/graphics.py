@@ -1,6 +1,5 @@
-from events import Events
+from src.events import Events
 import pygame
-from pygame import PixelArray
 import numpy as np
 
 class Graphics:
@@ -27,7 +26,7 @@ class Graphics:
                 if event.type == pygame.QUIT:
                     return Events.QUIT
         except:
-            log.debug("Can't get events, video system not initialised.")
+            print("Can't get events, video system not initialised.")
 
     def __init__(self, GB_PARAMS):
         self.GB_PARAMS = GB_PARAMS

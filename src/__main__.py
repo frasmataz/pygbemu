@@ -1,6 +1,6 @@
-from events import Events
-from graphics import Graphics
-from mmu import MMU
+from src.events import Events
+from src.graphics import Graphics
+from src.mmu import MMU
 import sys
 from timeit import default_timer as timer
 
