@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from src.mmu import MMU
+from src.exceptions.memory_access_error import MemoryAccessError
 
 def test_read_range():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
@@ -20,6 +21,18 @@ def test_write_range():
             mmu.set(i, 0xFF)
         except NotImplementedError:
             pass
+
+def test_out_of_range():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    mmu = MMU(rom_file)
+    with pytest.raises(MemoryAccessError):
+        mmu.get(-1)
+    with pytest.raises(MemoryAccessError):
+        mmu.get(0x10000)
+    with pytest.raises(MemoryAccessError):
+        mmu.set(-1, 0)
+    with pytest.raises(MemoryAccessError):
+        mmu.set(0x10000, 0)
 
 def test_rom_access():
     rom_file = np.zeros(0x8000, dtype=np.uint8)

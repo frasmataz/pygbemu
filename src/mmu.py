@@ -145,4 +145,4 @@ class MMU:
             self.INTERRUPT = val
 
         else:
-            print('Crazy out of range address requested from MMU: ' + str(addr))
+            raise MemoryAccessError('Crazy out of range address requested from MMU: ' + str(addr))
