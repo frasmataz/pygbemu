@@ -12,24 +12,15 @@ class MMU:
     def get(self, addr):
         # Memory map reference: http://gameboy.mongenel.com/dmg/asmmemmap.html
 
-        # Interrupt and RST Address 0 0x0000-0x00FF
-        if addr >= 0x0000 and addr <= 0x00FF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
-
-        # Cartridge headers 0x0100-0x014F
-        elif addr >= 0x0100 and addr <= 0x014F:
-            addr_adj = addr - 0x0100
+        # Cartridge ROM bank 0 0x0000-0x3FFF
+        if addr >= 0x0000 and addr <= 0x3FFF:
+            addr_adj = addr
             return self.ROM[addr_adj]
 
-        # Cartrige ROM bank 0 0x0150-0x3FFF
-        elif addr >= 0x0150 and addr <= 0x3FFF:
-            addr_adj = addr - 0x0150
-            return self.ROM[addr_adj]
-
-        # Cartrige ROM switchable bank 0x4000-0x7FFF
+        # Cartridge ROM switchable bank 0x4000-0x7FFF
         elif addr >= 0x4000 and addr <= 0x7FFF:
             # TODO: Implement bank switching; currently just 32K max rom size
-            addr_adj = addr - 0x0150
+            addr_adj = addr
             return self.ROM[addr_adj]
 
         # Character RAM 0x8000-0x97FF
@@ -45,12 +36,12 @@ class MMU:
         elif addr >= 0x9C00 and addr <= 0x9FFF:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
-        # Cartridge RAM (if available) 0xA000-0xBFFF
+        # External RAM (if available) 0xA000-0xBFFF
         elif addr >= 0xA000 and addr <= 0xBFFF:
             addr_adj = addr - 0xA000
             return self.EXT_RAM[addr_adj]
 
-        # Internal RAM 0xC000-0xDFFF
+        # Work RAM 0xC000-0xDFFF
         elif addr >= 0xC000 and addr <= 0xDFFF:
             addr_adj = addr - 0xC000
             return self.WORK_RAM[addr_adj]
@@ -84,21 +75,11 @@ class MMU:
 
 
     def set(self, addr, val):
-
-        # Interrupt and RST Address 0 0x0000-0x00FF
-        if addr >= 0x0000 and addr <= 0x00FF:
+        # Cartridge ROM bank 0 0x0000-0x3FFF
+        if addr >= 0x0000 and addr <= 0x3FFF:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
-        # Cartridge headers 0x0100-0x014F
-        elif addr >= 0x0100 and addr <= 0x014F:
-            # return self.ROM[addr]
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
-
-        # Cartrige ROM bank 0 0x0150-0x3FFF
-        elif addr >= 0x0150 and addr <= 0x3FFF:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
-
-        # Cartrige ROM switchable bank 0x4000-0x7FFF
+        # Cartridge ROM switchable bank 0x4000-0x7FFF
         elif addr >= 0x4000 and addr <= 0x7FFF:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
@@ -115,12 +96,12 @@ class MMU:
         elif addr >= 0x9C00 and addr <= 0x9FFF:
             raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
 
-        # Cartridge RAM (if available) 0xA000-0xBFFF
+        # External RAM (if available) 0xA000-0xBFFF
         elif addr >= 0xA000 and addr <= 0xBFFF:
             addr_adj = addr - 0xA000
             self.EXT_RAM[addr_adj] = val
 
-        # Internal RAM 0xC000-0xDFFF
+        # Work RAM 0xC000-0xDFFF
         elif addr >= 0xC000 and addr <= 0xDFFF:
             addr_adj = addr - 0xC000
             self.WORK_RAM[addr_adj] = val
