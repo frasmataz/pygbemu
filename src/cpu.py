@@ -1,42 +1,72 @@
 import numpy as np
 
 class CPU:
-    def __init__(self):
-        self.a = 0x00
-        self.b = 0x00
-        self.c = 0x00
-        self.d = 0x00
-        self.e = 0x00
-        self.f = 0x00
-        self.h = 0x00
-        self.l = 0x00
+    def __init__(self, mmu):
+        self.regs = {
+            'A': 0x00,
+            'B': 0x00,
+            'C': 0x00,
+            'D': 0x00,
+            'E': 0x00,
+            'F': 0x00,
+            'H': 0x00,
+            'L': 0x00
+        }
+
         self.sp = 0x0000
         self.pc = 0x0000
 
-    def get_af(self):
-        return (self.a << 8) | self.f
+        self.mmu = mmu
 
-    def set_af(self, val):
-        self.a = (val & 0xFF00) >> 8
-        self.f = val  & 0x00FF
+    def get_reg_8(self, reg):
+        return self.regs[reg]
 
-    def get_bc(self):
-        return (self.b << 8) | self.c
+    def set_reg_8(self, reg, val):
+        self.regs[reg] = val
 
-    def set_bc(self, val):
-        self.b = (val & 0xFF00) >> 8
-        self.c = val & 0x00FF
+    def get_reg_16(self, reg):
+        if (reg == 'AF'):
+            return (self.regs['A'] << 8) | self.regs['F']
+        elif (reg == 'BC'):
+            return (self.regs['B'] << 8) | self.regs['C']
+        elif (reg == 'DE'):
+            return (self.regs['D'] << 8) | self.regs['E']
+        elif (reg == 'HL'):
+            return (self.regs['H'] << 8) | self.regs['L']
+        elif (reg == 'SP'):
+            return self.sp
+        elif (reg == 'PC'):
+            return self.pc
 
-    def get_de(self):
-        return (self.d << 8) | self.e
+    def set_reg_16(self, reg, val):
+        if (reg == 'AF'):
+            self.regs['A'] = (val & 0xFF00) >> 8
+            self.regs['F'] = val & 0x00FF
+        elif (reg == 'BC'):
+            self.regs['B'] = (val & 0xFF00) >> 8
+            self.regs['C'] = val & 0x00FF
+        elif (reg == 'DE'):
+            self.regs['D'] = (val & 0xFF00) >> 8
+            self.regs['E'] = val & 0x00FF
+        elif (reg == 'HL'):
+            self.regs['H'] = (val & 0xFF00) >> 8
+            self.regs['L'] = val & 0x00FF
+        elif (reg == 'SP'):
+            self.sp = val
+        elif (reg == 'PC'):
+            self.pc = val
 
-    def set_de(self, val):
-        self.d = (val & 0xFF00) >> 8
-        self.e = val & 0x00FF
+    def fetch_8(self):
+        val = self.mmu.get(self.pc)
+        self.pc = self.pc + 1
+        return val
 
-    def get_hl(self):
-        return (self.h << 8) | self.l
+    def fetch_16(self):
+        val1 = self.mmu.get(self.pc)
+        val2 = self.mmu.get(self.pc + 1)
+        self.pc = self.pc + 2
+        val = (val1 << 8) | val2
+        return val
 
-    def set_hl(self, val):
-        self.h = (val & 0xFF00) >> 8
-        self.l = val & 0x00FF
+    def tick(self):
+        op = self.fetch_8()
