@@ -3,7 +3,7 @@ from src.mmu import MMU
 from src.cpu import CPU
 
 def test_registers():
-    cpu = CPU()
+    cpu = CPU(MMU(np.zeros(0x8000, dtype=np.uint8)))
 
     regmap = {
         'AF': ['A', 'F'],
