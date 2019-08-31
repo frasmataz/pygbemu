@@ -13,13 +13,13 @@ def test_registers():
     }
 
     for _16reg, _8regs in regmap.items():
-        cpu.regs[_8regs[0]] = 0x55
-        cpu.regs[_8regs[1]] = 0xAA
+        cpu.set_reg_8(_8regs[0], 0x55)
+        cpu.set_reg_8(_8regs[1], 0xAA)
         assert cpu.get_reg_16(_16reg) == 0x55AA
 
         cpu.set_reg_16(_16reg, 0xAA55)
-        assert cpu.regs[_8regs[0]] == 0xAA
-        assert cpu.regs[_8regs[1]] == 0x55
+        assert cpu.get_reg_8(_8regs[0]) == 0xAA
+        assert cpu.get_reg_8(_8regs[1]) == 0x55
 
     assert cpu.sp == 0x0000
     assert cpu.pc == 0x0000
@@ -45,7 +45,7 @@ def test_LD_nn_n():
         rom_file[0x0001] = 0xAA
         cpu = CPU(MMU(rom_file))
         cpu.tick()
-        assert cpu.regs[reg] == 0xAA
+        assert cpu.get_reg_8(reg) == 0xAA
 
 def test_LD_r1_r2():
     ops = {
@@ -98,9 +98,9 @@ def test_LD_r1_r2():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
         rom_file[0x0000] = op
         cpu = CPU(MMU(rom_file))
-        cpu.regs[regs[1]] = 0xAA
+        cpu.set_reg_8(regs[1], 0xAA)
         cpu.tick()
-        assert cpu.regs[regs[0]] == 0xAA
+        assert cpu.get_reg_8(regs[0]) == 0xAA
 
 def test_LD_r_HL():
     ops = {
@@ -120,7 +120,7 @@ def test_LD_r_HL():
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_16('HL', 0x0100)
         cpu.tick()
-        assert cpu.regs[reg] == 0xAA
+        assert cpu.get_reg_8(reg) == 0xAA
 
 def test_LD_HL_r():
     ops = {
@@ -137,6 +137,59 @@ def test_LD_HL_r():
         rom_file[0x0000] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0xAA)
-        cpu.set_reg_16('HL', 0xC000)
+        cpu.set_reg_16('HL', 0xC002)
         cpu.tick()
-        assert cpu.mmu.get(0xC000) == cpu.get_reg_8(reg)
+        assert cpu.mmu.get(0xC002) == cpu.get_reg_8(reg)
+
+def test_LD_A_r():
+    ops = {
+        0x7F: 'A',
+        0x78: 'B',
+        0x79: 'C',
+        0x7A: 'D',
+        0x7B: 'E',
+        0x7C: 'H',
+        0x7D: 'L'
+    }
+
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0xAA)
+        cpu.tick()
+        assert cpu.get_reg_8('A') == 0xAA
+
+def test_LD_A_rr():
+    ops = {
+        0x0A: 'BC',
+        0x1A: 'DE',
+        0x77: 'HL',
+    }
+
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.mmu.set(0xC002, 0xAA)
+        cpu.set_reg_16(reg, 0xC002)
+        cpu.tick()
+        assert cpu.get_reg_8('A') == 0xAA
+
+def test_LD_A_nn():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xFA
+    rom_file[0x0001] = 0x02
+    rom_file[0x0002] = 0xC0
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC002, 0xAA)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xAA
+
+def test_LD_A_n():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x3E
+    rom_file[0x0001] = 0xAA
+    cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xAA

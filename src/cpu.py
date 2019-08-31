@@ -65,7 +65,7 @@ class CPU:
         val1 = self.mmu.get(self.pc)
         val2 = self.mmu.get(self.pc + 1)
         self.pc = self.pc + 2
-        val = (val1 << 8) | val2
+        val = (val2 << 8) | val1 # Least sig byte popped first, might be wrong
         return val
 
     def tick(self):
@@ -212,6 +212,18 @@ class CPU:
         # LD (HL), n   #Technically part of LD r1, r2
         elif (op == 0x36):
             self.LD_HL_n()
+        elif (op == 0x0A):
+            self.LD_A_rr('BC')
+        elif (op == 0x1A):
+            self.LD_A_rr('DE')
+        elif (op == 0x77):
+            self.LD_A_rr('HL')
+        elif (op == 0xFA):
+            self.LD_A_nn()
+        elif (op == 0x3E):
+            self.LD_A_n()
+        else:
+            raise RuntimeError('Unknown opcode: ' + hex(op))
 
 
     ## OPCODE FUNCTIONS
@@ -234,3 +246,14 @@ class CPU:
         n = self.fetch_8()
         addr = self.get_reg_16('HL')
         self.mmu.set(addr, n)
+
+    def LD_A_rr(self, reg):
+        addr = self.get_reg_16(reg)
+        self.set_reg_8('A', self.mmu.get(addr))
+
+    def LD_A_nn(self):
+        addr = self.fetch_16()
+        self.set_reg_8('A', self.mmu.get(addr))
+
+    def LD_A_n(self):
+        self.set_reg_8('A', self.fetch_8())
