@@ -212,16 +212,40 @@ class CPU:
         # LD (HL), n   #Technically part of LD r1, r2
         elif (op == 0x36):
             self.LD_HL_n()
+
+        # LD A, n
         elif (op == 0x0A):
             self.LD_A_rr('BC')
         elif (op == 0x1A):
             self.LD_A_rr('DE')
-        elif (op == 0x77):
+        elif (op == 0x7E):
             self.LD_A_rr('HL')
         elif (op == 0xFA):
             self.LD_A_nn()
         elif (op == 0x3E):
             self.LD_A_n()
+
+        # LD n, A
+        elif (op == 0x47):
+            self.LD_n_A('B')
+        elif (op == 0x4F):
+            self.LD_n_A('C')
+        elif (op == 0x57):
+            self.LD_n_A('D')
+        elif (op == 0x5F):
+            self.LD_n_A('E')
+        elif (op == 0x67):
+            self.LD_n_A('H')
+        elif (op == 0x6F):
+            self.LD_n_A('L')
+        elif (op == 0x02):
+            self.LD_rr_A('BC')
+        elif (op == 0x12):
+            self.LD_rr_A('DE')
+        elif (op == 0x77):
+            self.LD_rr_A('HL')
+        elif (op == 0xEA):
+            self.LD_nn_A()
         else:
             raise RuntimeError('Unknown opcode: ' + hex(op))
 
@@ -257,3 +281,14 @@ class CPU:
 
     def LD_A_n(self):
         self.set_reg_8('A', self.fetch_8())
+
+    def LD_n_A(self, reg):
+        self.set_reg_8(reg, self.get_reg_8('A'))
+
+    def LD_rr_A(self, reg):
+        addr = self.get_reg_16(reg)
+        self.mmu.set(addr, self.get_reg_8('A'))
+
+    def LD_nn_A(self):
+        addr = self.fetch_16()
+        self.mmu.set(addr, self.get_reg_8('A'))
