@@ -250,6 +250,8 @@ class CPU:
             self.LD_A_C()
         elif (op == 0xE2):
             self.LD_C_A()
+        elif (op == 0x3A):
+            self.LDD_A_HL()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -302,3 +304,8 @@ class CPU:
 
     def LD_C_A(self):
         self.mmu.set(0xFF00 + self.get_reg_8('C'), self.get_reg_8('A'))
+
+    def LDD_A_HL(self):
+        self.set_reg_8('A', self.mmu.get(self.get_reg_16('HL')))
+        HL = self.get_reg_16('HL')
+        self.set_reg_16('HL', HL - (1 if (HL > 0x00) else -0xFFFF))
