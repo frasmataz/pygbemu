@@ -14,6 +14,8 @@ class MMU:
         self.HIGH_RAM = np.zeros(127, dtype=np.uint8)
         self.INTERRUPT = 0x00
 
+        self.HW_REGS_TEMP = np.zeros(128, dtype=np.uint8)
+
     def get(self, addr):
         # Memory map reference: http://gameboy.mongenel.com/dmg/asmmemmap.html
 
@@ -68,7 +70,9 @@ class MMU:
 
         # Hardware I/O Registers 0xFF00-0xFF7F
         elif addr >= 0xFF00 and addr <= 0xFF7F:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            # TODO: Implement HW regs GET
+            addr_adj = addr - 0xFF00
+            return self.HW_REGS_TEMP[addr_adj]
 
         # High RAM 0xFF80-0xFFFE
         elif addr >= 0xFF80 and addr <= 0xFFFE:
@@ -133,7 +137,9 @@ class MMU:
 
         # Hardware I/O Registers 0xFF00-0xFF7F
         elif addr >= 0xFF00 and addr <= 0xFF7F:
-            raise NotImplementedError('Access of unimplemented memory space ' + str(addr))
+            # TODO: Implement HW regs SET
+            addr_adj = addr - 0xFF00
+            self.HW_REGS_TEMP[addr_adj] = val
 
         # High RAM 0xFF80-0xFFFE
         elif addr >= 0xFF80 and addr <= 0xFFFE:

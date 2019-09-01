@@ -246,8 +246,12 @@ class CPU:
             self.LD_rr_A('HL')
         elif (op == 0xEA):
             self.LD_nn_A()
+        elif (op == 0xF2):
+            self.LD_A_C()
+        elif (op == 0xE2):
+            self.LD_C_A()
         else:
-            raise RuntimeError('Unknown opcode: ' + hex(op))
+            raise NotImplementedError('Unknown opcode: ' + hex(op))
 
 
     ## OPCODE FUNCTIONS
@@ -292,3 +296,9 @@ class CPU:
     def LD_nn_A(self):
         addr = self.fetch_16()
         self.mmu.set(addr, self.get_reg_8('A'))
+
+    def LD_A_C(self):
+        self.set_reg_8('A', self.mmu.get(0xFF00 + self.get_reg_8('C')))
+
+    def LD_C_A(self):
+        self.mmu.set(0xFF00 + self.get_reg_8('C'), self.get_reg_8('A'))

@@ -238,3 +238,21 @@ def test_LD_nn_A():
     cpu.set_reg_8('A', 0xAA)
     cpu.tick()
     assert cpu.mmu.get(0xC002) == 0xAA
+
+def test_LD_A_C():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xF2
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('C', 0x24)
+    cpu.mmu.set(0xFF24, 0xAA)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xAA
+
+def test_LD_C_A():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xE2
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xAA)
+    cpu.set_reg_8('C', 0x24)
+    cpu.tick()
+    assert cpu.mmu.get(0xFF24) == 0xAA
