@@ -274,3 +274,13 @@ def test_LDD_A_HL():
     cpu.tick()
     assert cpu.get_reg_8('A') == 0x3A
     assert cpu.get_reg_16('HL') == 0xFFFF
+
+def test_LDD_HL_A():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x32
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0xC002)
+    cpu.set_reg_8('A', 0xAA)
+    cpu.tick()
+    assert cpu.mmu.get(0xC002) == 0xAA
+    assert cpu.get_reg_16('HL') == 0xC001

@@ -68,6 +68,29 @@ class CPU:
         val = (val2 << 8) | val1 # Least sig byte popped first, might be wrong
         return val
 
+    def get_flag(self, flag):
+        if (flag == 'Z'):
+            return self.get_reg_8('F') & 0b10000000
+        elif (flag == 'N'):
+            return self.get_reg_8('F') & 0b01000000
+        elif (flag == 'H'):
+            return self.get_reg_8('F') & 0b00100000
+        elif (flag == 'C'):
+            return self.get_reg_8('F') & 0b00010000
+        else:
+            return 0
+
+    def set_flag(self, flag, val):
+        cur = self.get_flag(flag)
+        if (flag == 'Z'):
+            self.set_reg_8('F', self.get_reg_8('F') & 0x01111111 | (val << 7))
+        elif (flag == 'N'):
+            self.set_reg_8('F', self.get_reg_8('F') & 0x10111111 | (val << 6))
+        elif (flag == 'H'):
+            self.set_reg_8('F', self.get_reg_8('F') & 0x11011111 | (val << 5))
+        elif (flag == 'C'):
+            self.set_reg_8('F', self.get_reg_8('F') & 0x11101111 | (val << 4))
+
     def tick(self):
         op = self.fetch_8()
 
@@ -252,6 +275,8 @@ class CPU:
             self.LD_C_A()
         elif (op == 0x3A):
             self.LDD_A_HL()
+        elif (op == 0x32):
+            self.LDD_HL_A()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -307,5 +332,10 @@ class CPU:
 
     def LDD_A_HL(self):
         self.set_reg_8('A', self.mmu.get(self.get_reg_16('HL')))
+        HL = self.get_reg_16('HL')
+        self.set_reg_16('HL', HL - (1 if (HL > 0x00) else -0xFFFF))
+
+    def LDD_HL_A(self):
+        self.mmu.set(self.get_reg_16('HL'), self.get_reg_8('A'))
         HL = self.get_reg_16('HL')
         self.set_reg_16('HL', HL - (1 if (HL > 0x00) else -0xFFFF))
