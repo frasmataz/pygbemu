@@ -34,6 +34,36 @@ def test_flags():
         cpu.set_flag(flag, 0)
         assert cpu.get_flag(flag) == 0
 
+def test_add_8():
+    cpu = CPU(MMU(np.zeros(0x8000, dtype=np.uint8)))
+    assert cpu.add_8(0x11, 0x22) == 0x33
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+    assert cpu.add_8(0xFF, 0x01) == 0x00
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 1
+    assert cpu.add_8(0x0F, 0x01) == 0x10
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 0
+    assert cpu.add_8(0xF0, 0x10) == 0x00
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+def test_add_16():
+    cpu = CPU(MMU(np.zeros(0x8000, dtype=np.uint8)))
+    assert cpu.add_16(0x1111, 0x2222) == 0x3333
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+    assert cpu.add_16(0xFFFF, 0x0001) == 0x0000
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 1
+    assert cpu.add_16(0x0F00, 0x0100) == 0x1000
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 0
+    assert cpu.add_16(0xF000, 0x1000) == 0x0000
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
 ### Test opcodes
 
 # 8-bit loads

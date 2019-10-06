@@ -92,6 +92,20 @@ class CPU:
         else:
             raise NotImplementedError('Unknown flag set: ' + flag)
 
+    def add_8(self, val1, val2):
+        total = (val1 + val2)
+        self.set_flag('N', 0)
+        self.set_flag('H', int((val1 & 0xF) > (total & 0xF)))
+        self.set_flag('C', int(total > 0xFF))
+        return total % 0x100
+
+    def add_16(self, val1, val2):
+        total = (val1 + val2)
+        self.set_flag('N', 0)
+        self.set_flag('H', int((val1 & 0xFFF) > (total & 0xFFF)))
+        self.set_flag('C', int(total > 0xFFFF))
+        return total % 0x10000
+
     def tick(self):
         op = self.fetch_8()
 
