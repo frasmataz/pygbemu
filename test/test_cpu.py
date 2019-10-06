@@ -446,3 +446,21 @@ def test_LD_nn_SP():
     cpu.tick()
     assert cpu.mmu.get(0xC002) == 0xBB
     assert cpu.mmu.get(0xC003) == 0xAA
+
+def test_PUSH_nn():
+    ops = {
+        0xF5: 'AF',
+        0xC5: 'BC',
+        0xD5: 'DE',
+        0xE5: 'HL'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_16(reg, 0xAABB)
+        cpu.set_reg_16('SP', 0xC002)
+        cpu.tick()
+        assert cpu.mmu.get(0xC001) == 0xAA
+        assert cpu.mmu.get(0xC000) == 0xBB
+        assert cpu.get_reg_16('SP') == 0xC000

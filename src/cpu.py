@@ -92,6 +92,12 @@ class CPU:
         else:
             raise NotImplementedError('Unknown flag set: ' + flag)
 
+    def push_stack(self, addr):
+        SP = self.get_reg_16('SP')
+        self.mmu.set(SP - 1, (addr & 0xFF00) >> 8)
+        self.mmu.set(SP - 2, (addr & 0xFF))
+        self.set_reg_16('SP', SP - 2)
+
     def add_8(self, val1, val2):
         total = (val1 + val2)
         self.set_flag('N', 0)
@@ -326,6 +332,16 @@ class CPU:
             self.LD_HL_SPn()
         elif (op == 0x08):
             self.LD_nn_SP()
+
+        # Stack
+        elif (op == 0xF5):
+            self.PUSH_nn('AF')
+        elif (op == 0xC5):
+            self.PUSH_nn('BC')
+        elif (op == 0xD5):
+            self.PUSH_nn('DE')
+        elif (op == 0xE5):
+            self.PUSH_nn('HL')
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -425,3 +441,6 @@ class CPU:
         addr = self.fetch_16()
         self.mmu.set(addr, (val & 0x00FF))
         self.mmu.set(addr + 1, (val & 0xFF00) >> 8)
+
+    def PUSH_nn(self, reg):
+        self.push_stack(self.get_reg_16(reg))
