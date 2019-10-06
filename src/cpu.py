@@ -94,6 +94,7 @@ class CPU:
     def tick(self):
         op = self.fetch_8()
 
+        ## 8-bit loads
         # LD nn, n
         if (op == 0x06):
             n = self.fetch_8()
@@ -291,11 +292,24 @@ class CPU:
             self.LDH_n_A()
         elif (op == 0xF0):
             self.LDH_A_n()
+
+        ## 16-bit loads
+        # LD n, nn
+        elif (op == 0x01):
+            self.LD_n_nn('BC')
+        elif (op == 0x11):
+            self.LD_n_nn('DE')
+        elif (op == 0x21):
+            self.LD_n_nn('HL')
+        elif (op == 0x31):
+            self.LD_n_nn('SP')
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
 
+
     ## OPCODE FUNCTIONS
+    # 8-bit loads
 
     def LD_nn_n(self, r, val):
         self.regs[r] = val
@@ -371,3 +385,8 @@ class CPU:
     def LDH_A_n(self):
         n = self.fetch_8()
         self.set_reg_8('A', self.mmu.get(0xFF00 + n))
+
+    # 16-bit loads
+
+    def LD_n_nn(self, reg):
+        self.set_reg_16(reg, self.fetch_16())

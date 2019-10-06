@@ -164,7 +164,7 @@ def test_LD_A_rr():
     ops = {
         0x0A: 'BC',
         0x1A: 'DE',
-        0x7E: 'HL',
+        0x7E: 'HL'
     }
 
     for op, reg in ops.items():
@@ -217,7 +217,7 @@ def test_LD_rr_A():
     ops = {
         0x02: 'BC',
         0x12: 'DE',
-        0x77: 'HL',
+        0x77: 'HL'
     }
 
     for op, reg in ops.items():
@@ -329,3 +329,21 @@ def test_LDH_A_n():
     cpu.mmu.set(0xFF12, 0xAA)
     cpu.tick()
     assert cpu.get_reg_8('A') == 0xAA
+
+# 16-bit loads
+
+def test_LD_n_nn():
+    ops = {
+        0x01: 'BC',
+        0x11: 'DE',
+        0x21: 'HL',
+        0x31: 'SP'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        rom_file[0x0001] = 0x34
+        rom_file[0x0002] = 0x12
+        cpu = CPU(MMU(rom_file))
+        cpu.tick()
+        assert cpu.get_reg_16(reg) == 0x1234
