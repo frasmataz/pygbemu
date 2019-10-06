@@ -284,3 +284,30 @@ def test_LDD_HL_A():
     cpu.tick()
     assert cpu.mmu.get(0xC002) == 0xAA
     assert cpu.get_reg_16('HL') == 0xC001
+
+def test_LDI_A_HL():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x2A
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0xC002)
+    cpu.mmu.set(0xC002, 0xAA)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xAA
+    assert cpu.get_reg_16('HL') == 0xC003
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x2A
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0xFFFF)
+    cpu.tick()
+    assert cpu.get_reg_16('HL') == 0x0000
+
+def test_LDI_HL_A():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x22
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0xC002)
+    cpu.set_reg_8('A', 0xAA)
+    cpu.tick()
+    assert cpu.mmu.get(0xC002) == 0xAA
+    assert cpu.get_reg_16('HL') == 0xC003
