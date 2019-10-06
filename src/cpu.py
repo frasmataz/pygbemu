@@ -324,6 +324,8 @@ class CPU:
             self.LD_SP_HL()
         elif (op == 0xF8):
             self.LD_HL_SPn()
+        elif (op == 0x08):
+            self.LD_nn_SP()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -417,3 +419,9 @@ class CPU:
 
     def LD_HL_SPn(self):
         self.set_reg_16('HL', self.add_16(self.fetch_8(), self.get_reg_16('SP')))
+
+    def LD_nn_SP(self):
+        val = self.get_reg_16('SP')
+        addr = self.fetch_16()
+        self.mmu.set(addr, (val & 0x00FF))
+        self.mmu.set(addr + 1, (val & 0xFF00) >> 8)

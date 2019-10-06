@@ -435,3 +435,14 @@ def test_LD_HL_SPn():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 1
     assert cpu.get_flag('C') == 1
+
+def test_LD_nn_SP():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x08
+    rom_file[0x0001] = 0x02
+    rom_file[0x0002] = 0xC0
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('SP', 0xAABB)
+    cpu.tick()
+    assert cpu.mmu.get(0xC002) == 0xBB
+    assert cpu.mmu.get(0xC003) == 0xAA
