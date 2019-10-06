@@ -70,26 +70,27 @@ class CPU:
 
     def get_flag(self, flag):
         if (flag == 'Z'):
-            return self.get_reg_8('F') & 0b10000000
+            return (self.get_reg_8('F') & 0b10000000) >> 7
         elif (flag == 'N'):
-            return self.get_reg_8('F') & 0b01000000
+            return (self.get_reg_8('F') & 0b01000000) >> 6
         elif (flag == 'H'):
-            return self.get_reg_8('F') & 0b00100000
+            return (self.get_reg_8('F') & 0b00100000) >> 5
         elif (flag == 'C'):
-            return self.get_reg_8('F') & 0b00010000
+            return (self.get_reg_8('F') & 0b00010000) >> 4
         else:
-            return 0
+            raise NotImplementedError('Unknown flag get: ' + flag)
 
     def set_flag(self, flag, val):
-        cur = self.get_flag(flag)
         if (flag == 'Z'):
-            self.set_reg_8('F', self.get_reg_8('F') & 0x01111111 | (val << 7))
+            self.set_reg_8('F', self.get_reg_8('F') & 0b01111111 | (val << 7))
         elif (flag == 'N'):
-            self.set_reg_8('F', self.get_reg_8('F') & 0x10111111 | (val << 6))
+            self.set_reg_8('F', self.get_reg_8('F') & 0b10111111 | (val << 6))
         elif (flag == 'H'):
-            self.set_reg_8('F', self.get_reg_8('F') & 0x11011111 | (val << 5))
+            self.set_reg_8('F', self.get_reg_8('F') & 0b11011111 | (val << 5))
         elif (flag == 'C'):
-            self.set_reg_8('F', self.get_reg_8('F') & 0x11101111 | (val << 4))
+            self.set_reg_8('F', self.get_reg_8('F') & 0b11101111 | (val << 4))
+        else:
+            raise NotImplementedError('Unknown flag set: ' + flag)
 
     def tick(self):
         op = self.fetch_8()

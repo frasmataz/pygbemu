@@ -24,6 +24,16 @@ def test_registers():
     assert cpu.sp == 0x0000
     assert cpu.pc == 0x0000
 
+def test_flags():
+    flags = ['Z', 'N', 'H', 'C']
+    cpu = CPU(MMU(np.zeros(0x8000, dtype=np.uint8)))
+
+    for flag in flags:
+        cpu.set_flag(flag, 1)
+        assert cpu.get_flag(flag) == 1
+        cpu.set_flag(flag, 0)
+        assert cpu.get_flag(flag) == 0
+
 ### Test opcodes
 
 # 8-bit loads
