@@ -285,6 +285,12 @@ class CPU:
             self.LDI_A_HL()
         elif (op == 0x22):
             self.LDI_HL_A()
+
+        # LDH
+        elif (op == 0xE0):
+            self.LDH_n_A()
+        elif (op == 0xF0):
+            self.LDH_A_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -357,3 +363,11 @@ class CPU:
         self.mmu.set(self.get_reg_16('HL'), self.get_reg_8('A'))
         HL = self.get_reg_16('HL')
         self.set_reg_16('HL', HL + (1 if (HL < 0xFFFF) else -0xFFFF))
+
+    def LDH_n_A(self):
+        n = self.fetch_8()
+        self.mmu.set(0xFF00 + n, self.get_reg_8('A'))
+
+    def LDH_A_n(self):
+        n = self.fetch_8()
+        self.set_reg_8('A', self.mmu.get(0xFF00 + n))
