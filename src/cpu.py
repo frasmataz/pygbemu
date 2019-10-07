@@ -107,17 +107,21 @@ class CPU:
 
     def add_8(self, val1, val2):
         total = (val1 + val2)
+        wrappedTotal = total % 0x100
+        self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
         self.set_flag('H', int((val1 & 0xF) > (total & 0xF)))
         self.set_flag('C', int(total > 0xFF))
-        return total % 0x100
+        return wrappedTotal
 
     def add_16(self, val1, val2):
         total = (val1 + val2)
+        wrappedTotal = total % 0x10000
+        self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
         self.set_flag('H', int((val1 & 0xFFF) > (total & 0xFFF)))
         self.set_flag('C', int(total > 0xFFFF))
-        return total % 0x10000
+        return wrappedTotal
 
     def tick(self):
         op = self.fetch_8()
@@ -357,6 +361,26 @@ class CPU:
             self.POP_nn('DE')
         elif (op == 0xE1):
             self.POP_nn('HL')
+
+        ## 8-bit ALU
+        elif (op == 0x87):
+            self.ADD_A_r('A')
+        elif (op == 0x80):
+            self.ADD_A_r('B')
+        elif (op == 0x81):
+            self.ADD_A_r('C')
+        elif (op == 0x82):
+            self.ADD_A_r('D')
+        elif (op == 0x83):
+            self.ADD_A_r('E')
+        elif (op == 0x84):
+            self.ADD_A_r('H')
+        elif (op == 0x85):
+            self.ADD_A_r('L')
+        elif (op == 0x86):
+            self.ADD_A_HL()
+        elif (op == 0xC6):
+            self.ADD_A_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -462,3 +486,21 @@ class CPU:
 
     def POP_nn(self, reg):
         self.set_reg_16(reg, self.pop_stack())
+
+    def ADD_A_r(self, reg):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.get_reg_8(reg))
+        )
+
+    def ADD_A_HL(self):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.mmu.get(self.get_reg_16('HL'))
+        ))
+
+    def ADD_A_n(self):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.fetch_8()
+        ))
