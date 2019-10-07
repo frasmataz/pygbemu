@@ -105,8 +105,8 @@ class CPU:
         self.set_reg_16('SP', SP + 2)
         return (hi << 8) | lo
 
-    def add_8(self, val1, val2):
-        total = (val1 + val2)
+    def add_8(self, val1, val2, use_carry = False):
+        total = (val1 + val2 + (1 if (use_carry) else 0))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
@@ -114,8 +114,8 @@ class CPU:
         self.set_flag('C', int(total > 0xFF))
         return wrappedTotal
 
-    def add_16(self, val1, val2):
-        total = (val1 + val2)
+    def add_16(self, val1, val2, use_carry = False):
+        total = (val1 + val2 + (1 if (use_carry) else 0))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
@@ -381,6 +381,24 @@ class CPU:
             self.ADD_A_HL()
         elif (op == 0xC6):
             self.ADD_A_n()
+        elif (op == 0x8F):
+            self.ADC_A_r('A')
+        elif (op == 0x88):
+            self.ADC_A_r('B')
+        elif (op == 0x89):
+            self.ADC_A_r('C')
+        elif (op == 0x8A):
+            self.ADC_A_r('D')
+        elif (op == 0x8B):
+            self.ADC_A_r('E')
+        elif (op == 0x8C):
+            self.ADC_A_r('H')
+        elif (op == 0x8D):
+            self.ADC_A_r('L')
+        elif (op == 0x8E):
+            self.ADC_A_HL()
+        elif (op == 0xCE):
+            self.ADC_A_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -490,8 +508,8 @@ class CPU:
     def ADD_A_r(self, reg):
         self.set_reg_8('A', self.add_8(
             self.get_reg_8('A'),
-            self.get_reg_8(reg))
-        )
+            self.get_reg_8(reg)
+        ))
 
     def ADD_A_HL(self):
         self.set_reg_8('A', self.add_8(
@@ -503,4 +521,25 @@ class CPU:
         self.set_reg_8('A', self.add_8(
             self.get_reg_8('A'),
             self.fetch_8()
+        ))
+
+    def ADC_A_r(self, reg):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.get_reg_8(reg),
+            True
+        ))
+
+    def ADC_A_HL(self):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.mmu.get(self.get_reg_16('HL')),
+            True
+        ))
+
+    def ADC_A_n(self):
+        self.set_reg_8('A', self.add_8(
+            self.get_reg_8('A'),
+            self.fetch_8(),
+            True
         ))
