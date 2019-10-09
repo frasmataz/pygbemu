@@ -124,7 +124,7 @@ class CPU:
         return wrappedTotal
 
     def sub_8(self, val1, val2, use_carry = False):
-        total = (val1 - val2 + (1 if (use_carry) else 0))
+        total = (val1 - val2 - (1 if (use_carry) else 0))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
@@ -133,7 +133,7 @@ class CPU:
         return wrappedTotal
 
     def sub_16(self, val1, val2, use_carry = False):
-        total = (val1 - val2 + (1 if (use_carry) else 0))
+        total = (val1 - val2 - (1 if (use_carry) else 0))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
@@ -435,6 +435,24 @@ class CPU:
             self.SUB_A_HL()
         elif (op == 0xD6):
             self.SUB_A_n()
+        elif (op == 0x9F):
+            self.SBC_A_r('A')
+        elif (op == 0x98):
+            self.SBC_A_r('B')
+        elif (op == 0x99):
+            self.SBC_A_r('C')
+        elif (op == 0x9A):
+            self.SBC_A_r('D')
+        elif (op == 0x9B):
+            self.SBC_A_r('E')
+        elif (op == 0x9C):
+            self.SBC_A_r('H')
+        elif (op == 0x9D):
+            self.SBC_A_r('L')
+        elif (op == 0x9E):
+            self.SBC_A_HL()
+        elif (op == 0xDE):
+            self.SBC_A_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -596,4 +614,26 @@ class CPU:
         self.set_reg_8('A', self.sub_8(
             self.get_reg_8('A'),
             self.fetch_8()
+        ))
+
+
+    def SBC_A_r(self, reg):
+        self.set_reg_8('A', self.sub_8(
+            self.get_reg_8('A'),
+            self.get_reg_8(reg),
+            True
+        ))
+
+    def SBC_A_HL(self):
+        self.set_reg_8('A', self.sub_8(
+            self.get_reg_8('A'),
+            self.mmu.get(self.get_reg_16('HL')),
+            True
+        ))
+
+    def SBC_A_n(self):
+        self.set_reg_8('A', self.sub_8(
+            self.get_reg_8('A'),
+            self.fetch_8(),
+            True
         ))

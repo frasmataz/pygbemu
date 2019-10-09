@@ -784,3 +784,97 @@ def test_SUB_n():
     assert cpu.get_flag('N') == 1
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 1
+
+def test_SBC_n():
+    # Sub A from itself
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x9F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x11)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xFF
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 1
+
+    # Other registers
+    ops = {
+        0x98: 'B',
+        0x99: 'C',
+        0x9A: 'D',
+        0x9B: 'E',
+        0x9C: 'H',
+        0x9D: 'L'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8('A', 0x33)
+        cpu.set_reg_8(reg, 0x22)
+        cpu.set_flag('C', 1)
+        cpu.tick()
+        assert cpu.get_reg_8('A') == 0x10
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 1
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+    # (HL)
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x9E
+    rom_file[0x0123] = 0x22
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x33)
+    cpu.set_reg_16('HL', 0x0123)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x10
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Immediate value
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xDE
+    rom_file[0x0001] = 0x22
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x33)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x10
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test half-carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xDE
+    rom_file[0x0001] = 0x01
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x11)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x0F
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 1
+    assert cpu.get_flag('C') == 0
+
+    # Test full-carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xDE
+    rom_file[0x0001] = 0x0F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x00)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xF0
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
