@@ -471,6 +471,24 @@ class CPU:
             self.AND_HL()
         elif (op == 0xE6):
             self.AND_n()
+        elif (op == 0xB7):
+            self.OR_r('A')
+        elif (op == 0xB0):
+            self.OR_r('B')
+        elif (op == 0xB1):
+            self.OR_r('C')
+        elif (op == 0xB2):
+            self.OR_r('D')
+        elif (op == 0xB3):
+            self.OR_r('E')
+        elif (op == 0xB4):
+            self.OR_r('H')
+        elif (op == 0xB5):
+            self.OR_r('L')
+        elif (op == 0xB6):
+            self.OR_HL()
+        elif (op == 0xF6):
+            self.OR_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -678,4 +696,28 @@ class CPU:
         self.set_flag('Z', int(result == 0x00))
         self.set_flag('N', 0)
         self.set_flag('H', 1)
+        self.set_flag('C', 0)
+
+    def OR_r(self, reg):
+        result = self.get_reg_8('A') | self.get_reg_8(reg)
+        self.set_reg_8('A', result)
+        self.set_flag('Z', int(result == 0x00))
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_flag('C', 0)
+
+    def OR_HL(self):
+        result = self.get_reg_8('A') | self.mmu.get(self.get_reg_16('HL'))
+        self.set_reg_8('A', result)
+        self.set_flag('Z', int(result == 0x00))
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_flag('C', 0)
+
+    def OR_n(self):
+        result = self.get_reg_8('A') | self.fetch_8()
+        self.set_reg_8('A', result)
+        self.set_flag('Z', int(result == 0x00))
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
         self.set_flag('C', 0)

@@ -953,3 +953,78 @@ def test_AND_n():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 1
     assert cpu.get_flag('C') == 0
+
+def test_OR_n():
+    # A
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xB7
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xCC)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xCC
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Other registers
+    ops = {
+        0xB0: 'B',
+        0xB1: 'C',
+        0xB2: 'D',
+        0xB3: 'E',
+        0xB4: 'H',
+        0xB5: 'L'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8('A', 0xCC)
+        cpu.set_reg_8(reg, 0xAA)
+        cpu.tick()
+        assert cpu.get_reg_8('A') == 0xEE
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+    # (HL)
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xB6
+    rom_file[0x0123] = 0xAA
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xCC)
+    cpu.set_reg_16('HL', 0x0123)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xEE
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Immediate value
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xF6
+    rom_file[0x0001] = 0xAA
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xCC)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xEE
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test zero flag
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xF6
+    rom_file[0x0001] = 0x00
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x00)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x00
+    assert cpu.get_flag('Z') == 1
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
