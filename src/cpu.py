@@ -546,6 +546,22 @@ class CPU:
             self.INC_r('L')
         elif (op == 0x34):
             self.INC_HL()
+        elif (op == 0x3D):
+            self.DEC_r('A')
+        elif (op == 0x05):
+            self.DEC_r('B')
+        elif (op == 0x0D):
+            self.DEC_r('C')
+        elif (op == 0x15):
+            self.DEC_r('D')
+        elif (op == 0x1D):
+            self.DEC_r('E')
+        elif (op == 0x25):
+            self.DEC_r('H')
+        elif (op == 0x2D):
+            self.DEC_r('L')
+        elif (op == 0x35):
+            self.DEC_HL()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -829,4 +845,18 @@ class CPU:
         self.set_flag('Z', (result == 0x00))
         self.set_flag('N', False)
         self.set_flag('H', int(((self.mmu.get(self.get_reg_16('HL')) & 0x0F) + 0x01) > 0x0F))
+        self.mmu.set(self.get_reg_16('HL'), result)
+
+    def DEC_r(self, reg):
+        result = (self.get_reg_8(reg) - 1) % 0x100
+        self.set_flag('Z', (result == 0x00))
+        self.set_flag('N', True)
+        self.set_flag('H', int(self.get_reg_8(reg) & 0x0F) == 0)
+        self.set_reg_8(reg, result)
+
+    def DEC_HL(self):
+        result = (self.mmu.get(self.get_reg_16('HL')) - 1) % 0x100
+        self.set_flag('Z', (result == 0x00))
+        self.set_flag('N', True)
+        self.set_flag('H', int((self.mmu.get(self.get_reg_16('HL')) & 0x0F) == 0))
         self.mmu.set(self.get_reg_16('HL'), result)
