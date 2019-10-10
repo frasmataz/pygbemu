@@ -106,38 +106,38 @@ class CPU:
         return (hi << 8) | lo
 
     def add_8(self, val1, val2, use_carry = False):
-        total = (val1 + val2 + (1 if (use_carry) else 0))
+        total = (val1 + val2 + int(use_carry))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
-        self.set_flag('H', int((val1 & 0xF) > (total & 0xF)))
+        self.set_flag('H', int((val1 & 0x0F) + (val2 & 0x0F) + (int(use_carry) & 0x0F) > 0x0F))
         self.set_flag('C', int(total > 0xFF))
         return wrappedTotal
 
     def add_16(self, val1, val2, use_carry = False):
-        total = (val1 + val2 + (1 if (use_carry) else 0))
+        total = (val1 + val2 + int(use_carry))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
-        self.set_flag('H', int((val1 & 0xFFF) > (total & 0xFFF)))
+        self.set_flag('H', int((val1 & 0xFFF) + (val2 & 0xFFF) + (int(use_carry) & 0x0FFF) > 0x0FFF))
         self.set_flag('C', int(total > 0xFFFF))
         return wrappedTotal
 
     def sub_8(self, val1, val2, use_carry = False):
-        total = (val1 - val2 - (1 if (use_carry) else 0))
+        total = (val1 - val2 - int(use_carry))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
-        self.set_flag('H', int((val1 & 0xF) - (total & 0xF) < 0))
+        self.set_flag('H', int((val1 & 0xF) < ((val2 & 0xF) + int(use_carry))))
         self.set_flag('C', int(total < 0x00))
         return wrappedTotal
 
     def sub_16(self, val1, val2, use_carry = False):
-        total = (val1 - val2 - (1 if (use_carry) else 0))
+        total = (val1 - val2 - int(use_carry))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
-        self.set_flag('H', int((val1 & 0xFFF) - (total & 0xFFF) < 0))
+        self.set_flag('H', int((val1 & 0xFFF) < ((val2 & 0xFFF) + int(use_carry))))
         self.set_flag('C', int(total < 0x0000))
         return wrappedTotal
 
@@ -381,6 +381,7 @@ class CPU:
             self.POP_nn('HL')
 
         ## 8-bit ALU
+        # Addition
         elif (op == 0x87):
             self.ADD_A_r('A')
         elif (op == 0x80):
@@ -417,6 +418,8 @@ class CPU:
             self.ADC_A_HL()
         elif (op == 0xCE):
             self.ADC_A_n()
+
+        # Subtraction
         elif (op == 0x97):
             self.SUB_A_r('A')
         elif (op == 0x90):
@@ -453,6 +456,8 @@ class CPU:
             self.SBC_A_HL()
         elif (op == 0xDE):
             self.SBC_A_n()
+
+        # AND/OR/XOR
         elif (op == 0xA7):
             self.AND_r('A')
         elif (op == 0xA0):
@@ -507,6 +512,24 @@ class CPU:
             self.XOR_HL()
         elif (op == 0xEE):
             self.XOR_n()
+        elif (op == 0xBF):
+            self.CP_r('A')
+        elif (op == 0xB8):
+            self.CP_r('B')
+        elif (op == 0xB9):
+            self.CP_r('C')
+        elif (op == 0xBA):
+            self.CP_r('D')
+        elif (op == 0xBB):
+            self.CP_r('E')
+        elif (op == 0xBC):
+            self.CP_r('H')
+        elif (op == 0xBD):
+            self.CP_r('L')
+        elif (op == 0xBE):
+            self.CP_HL()
+        elif (op == 0xFE):
+            self.CP_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -670,7 +693,6 @@ class CPU:
             self.fetch_8()
         ))
 
-
     def SBC_A_r(self, reg):
         self.set_reg_8('A', self.sub_8(
             self.get_reg_8('A'),
@@ -763,3 +785,18 @@ class CPU:
         self.set_flag('N', 0)
         self.set_flag('H', 0)
         self.set_flag('C', 0)
+
+    def CP_r(self, reg):
+        a = self.get_reg_8('A')
+        self.SUB_A_r(reg)
+        self.set_reg_8('A', a)
+
+    def CP_HL(self):
+        a = self.get_reg_8('A')
+        self.SUB_A_HL()
+        self.set_reg_8('A', a)
+
+    def CP_n(self):
+        a = self.get_reg_8('A')
+        self.SUB_A_n()
+        self.set_reg_8('A', a)
