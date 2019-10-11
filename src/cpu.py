@@ -562,6 +562,18 @@ class CPU:
             self.DEC_r('L')
         elif (op == 0x35):
             self.DEC_HL()
+
+        ## 16-bit ALU
+        elif (op == 0x09):
+            self.ADD_HL_n('BC')
+        elif (op == 0x19):
+            self.ADD_HL_n('DE')
+        elif (op == 0x29):
+            self.ADD_HL_n('HL')
+        elif (op == 0x39):
+            self.ADD_HL_n('SP')
+        elif (op == 0xE8):
+            self.ADD_SP_n()
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -860,3 +872,21 @@ class CPU:
         self.set_flag('N', True)
         self.set_flag('H', int((self.mmu.get(self.get_reg_16('HL')) & 0x0F) == 0))
         self.mmu.set(self.get_reg_16('HL'), result)
+
+    def ADD_HL_n(self, reg):
+        # Ensure Z isn't affected
+        z = self.get_flag('Z')
+        self.set_reg_16('HL', self.add_16(
+            self.get_reg_16('HL'),
+            self.get_reg_16(reg),
+            False
+        ))
+        self.set_flag('Z', z)
+
+    def ADD_SP_n(self):
+        self.set_reg_16('SP', self.add_16(
+            self.get_reg_16('SP'),
+            self.fetch_16(),
+            False
+        ))
+        self.set_flag('Z', 0)
