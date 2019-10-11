@@ -1513,3 +1513,18 @@ def test_INC_nn():
         cpu.set_reg_16(reg, 0x1111)
         cpu.tick()
         assert cpu.get_reg_16(reg) == 0x1112
+
+def test_DEC_nn():
+    ops = {
+        0x0B: 'BC',
+        0x1B: 'DE',
+        0x2B: 'HL',
+        0x3B: 'SP'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_16(reg, 0x1111)
+        cpu.tick()
+        assert cpu.get_reg_16(reg) == 0x1110

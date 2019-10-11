@@ -582,6 +582,14 @@ class CPU:
             self.INC_nn('HL')
         elif (op == 0x33):
             self.INC_nn('SP')
+        elif (op == 0x0B):
+            self.DEC_nn('BC')
+        elif (op == 0x1B):
+            self.DEC_nn('DE')
+        elif (op == 0x2B):
+            self.DEC_nn('HL')
+        elif (op == 0x3B):
+            self.DEC_nn('SP')
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -901,3 +909,6 @@ class CPU:
 
     def INC_nn(self, reg):
         self.set_reg_16(reg, (self.get_reg_16(reg) + 1) % 0x10000)
+
+    def DEC_nn(self, reg):
+        self.set_reg_16(reg, (self.get_reg_16(reg) - 1) % 0x10000)
