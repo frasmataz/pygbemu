@@ -590,6 +590,28 @@ class CPU:
             self.DEC_nn('HL')
         elif (op == 0x3B):
             self.DEC_nn('SP')
+
+        # Extended operations:
+        elif (op == 0xCB):
+            op2 = self.fetch_8()
+
+            if (op2 == 0x37):
+                self.SWAP_r('A')
+            elif (op2 == 0x30):
+                self.SWAP_r('B')
+            elif (op2 == 0x31):
+                self.SWAP_r('C')
+            elif (op2 == 0x32):
+                self.SWAP_r('D')
+            elif (op2 == 0x33):
+                self.SWAP_r('E')
+            elif (op2 == 0x34):
+                self.SWAP_r('H')
+            elif (op2 == 0x35):
+                self.SWAP_r('L')
+            elif (op2 == 0x36):
+                self.SWAP_HL()
+
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
@@ -912,3 +934,19 @@ class CPU:
 
     def DEC_nn(self, reg):
         self.set_reg_16(reg, (self.get_reg_16(reg) - 1) % 0x10000)
+
+    def SWAP_r(self, reg):
+        oldval = self.get_reg_8(reg)
+        hi = (oldval & 0xF0) >> 4
+        lo = oldval & 0x0F
+        newval = (lo << 4) | hi
+
+        self.set_reg_8(reg, newval)
+
+    def SWAP_HL(self):
+        oldval = self.mmu.get(self.get_reg_16('HL'))
+        hi = (oldval & 0xF0) >> 4
+        lo = oldval & 0x0F
+        newval = (lo << 4) | hi
+
+        self.mmu.set(self.get_reg_16('HL'), newval)

@@ -1528,3 +1528,36 @@ def test_DEC_nn():
         cpu.set_reg_16(reg, 0x1111)
         cpu.tick()
         assert cpu.get_reg_16(reg) == 0x1110
+
+# Misc
+
+def test_SWAP_n():
+    # Note - This is a two-opcode instruction
+    # First 0xCB, then a second opcode for the target
+    ops = {
+        0x37: 'A',
+        0x30: 'B',
+        0x31: 'C',
+        0x32: 'D',
+        0x33: 'E',
+        0x34: 'H',
+        0x35: 'L'
+    }
+    for op, reg in ops.items():
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0xAB)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xBA
+
+    # (HL)
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x36
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0xC001)
+    cpu.mmu.set(0xC001, 0xAB)
+    cpu.tick()
+    assert cpu.mmu.get(0xC001) == 0xBA
