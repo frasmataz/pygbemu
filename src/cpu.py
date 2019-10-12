@@ -106,7 +106,7 @@ class CPU:
         return (hi << 8) | lo
 
     def add_8(self, val1, val2, use_carry = False):
-        total = (val1 + val2 + int(use_carry))
+        total = (int(val1) + int(val2) + int(use_carry))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
@@ -115,7 +115,7 @@ class CPU:
         return wrappedTotal
 
     def add_16(self, val1, val2, use_carry = False):
-        total = (val1 + val2 + int(use_carry))
+        total = (int(val1) + int(val2) + int(use_carry))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 0)
@@ -124,7 +124,7 @@ class CPU:
         return wrappedTotal
 
     def sub_8(self, val1, val2, use_carry = False):
-        total = (val1 - val2 - int(use_carry))
+        total = (int(val1) - int(val2) - int(use_carry))
         wrappedTotal = total % 0x100
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
@@ -133,7 +133,7 @@ class CPU:
         return wrappedTotal
 
     def sub_16(self, val1, val2, use_carry = False):
-        total = (val1 - val2 - int(use_carry))
+        total = (int(val1) - int(val2) - int(use_carry))
         wrappedTotal = total % 0x10000
         self.set_flag('Z', int(wrappedTotal == 0))
         self.set_flag('N', 1)
@@ -591,6 +591,10 @@ class CPU:
         elif (op == 0x3B):
             self.DEC_nn('SP')
 
+        # Misc
+        elif (op == 0x27):
+            self.DAA()
+
         # Extended operations:
         elif (op == 0xCB):
             op2 = self.fetch_8()
@@ -950,3 +954,22 @@ class CPU:
         newval = (lo << 4) | hi
 
         self.mmu.set(self.get_reg_16('HL'), newval)
+
+    def DAA(self):
+        a = self.get_reg_8('A')
+        c = self.get_flag('C')
+        h = self.get_flag('H')
+
+        if (self.get_flag('N')):
+            if (c): a -= 0x60
+            if (h): a -= 0x06
+        else:
+            if (c or a > 0x99):
+                a += 0x60
+                self.set_flag('C', 1)
+            if (h or (a & 0x0F) > 0x09):
+                a += 0x06
+
+        self.set_reg_8('A', a % 0x100)
+        self.set_flag('Z', int(a == 0))
+        self.set_flag('H', 0)

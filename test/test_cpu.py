@@ -1561,3 +1561,110 @@ def test_SWAP_n():
     cpu.mmu.set(0xC001, 0xAB)
     cpu.tick()
     assert cpu.mmu.get(0xC001) == 0xBA
+
+def test_DAA():
+    # Set/reset N flag to test post add/subtract DAA respectively
+    # Addition
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x0C)
+    cpu.set_flag('N', 0)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x12
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xC0)
+    cpu.set_flag('N', 0)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x20
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x10)
+    cpu.set_flag('N', 0)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x70
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x11)
+    cpu.set_flag('N', 0)
+    cpu.set_flag('H', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x17
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Subtraction
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xE0)
+    cpu.set_flag('N', 1)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x80
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x0E)
+    cpu.set_flag('N', 1)
+    cpu.set_flag('H', 1)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x08
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test zero
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x27
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x00)
+    cpu.set_flag('N', 0)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x00
+    assert cpu.get_flag('Z') == 1
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test an actual addition
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+
+    rom_file[0x0000] = 0x3E # LD A, 0x90
+    rom_file[0x0001] = 0x90
+    rom_file[0x0002] = 0xC6 # ADD A, 0x80
+    rom_file[0x0003] = 0x80
+    rom_file[0x0004] = 0x27 # DAA
+
+    cpu = CPU(MMU(rom_file))
+
+    # Tick 3 times
+    cpu.tick()
+    cpu.tick()
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x70
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
