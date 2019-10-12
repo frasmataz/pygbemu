@@ -594,6 +594,8 @@ class CPU:
         # Misc
         elif (op == 0x27):
             self.DAA()
+        elif (op == 0x2F):
+            self.CPL()
 
         # Extended operations:
         elif (op == 0xCB):
@@ -973,3 +975,8 @@ class CPU:
         self.set_reg_8('A', a % 0x100)
         self.set_flag('Z', int(a == 0))
         self.set_flag('H', 0)
+
+    def CPL(self):
+        self.set_reg_8('A', self.get_reg_8('A') ^ 0xFF)
+        self.set_flag('N', 1)
+        self.set_flag('H', 1)

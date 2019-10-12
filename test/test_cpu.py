@@ -1649,7 +1649,6 @@ def test_DAA():
     assert cpu.get_flag('C') == 0
 
     # Test an actual addition
-
     rom_file = np.zeros(0x8000, dtype=np.uint8)
 
     rom_file[0x0000] = 0x3E # LD A, 0x90
@@ -1668,3 +1667,13 @@ def test_DAA():
     assert cpu.get_flag('Z') == 0
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 1
+
+def test_CPL():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x2F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0xCA)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x35
+    assert cpu.get_flag('N') == 1
+    assert cpu.get_flag('H') == 1
