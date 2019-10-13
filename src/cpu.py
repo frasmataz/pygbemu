@@ -600,6 +600,8 @@ class CPU:
             self.CCF()
         elif (op == 0x37):
             self.SCF()
+        elif (op == 0x00):
+            self.NOP()
 
         # Extended operations:
         elif (op == 0xCB):
@@ -994,3 +996,6 @@ class CPU:
         self.set_flag('C', 1)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
+
+    def NOP(self):
+        pass

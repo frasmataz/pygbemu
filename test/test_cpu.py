@@ -1706,3 +1706,11 @@ def test_SCF():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 1
+
+def test_NOP():
+    # This feels like a weird test
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x00
+    cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    assert cpu.get_reg_16('PC') == 0x0001
