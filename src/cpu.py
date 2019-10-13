@@ -600,8 +600,22 @@ class CPU:
             self.CCF()
         elif (op == 0x37):
             self.SCF()
+
+        # Control flow
+        # TODO: Sort out interrupts and the likes
         elif (op == 0x00):
             self.NOP()
+        elif (op == 0x76):
+            self.HALT()
+        elif (op == 0x10):
+            op2 = self.fetch_8()
+            if (op2 == 0x00):
+                self.STOP()
+        elif (op == 0xF3):
+            self.DI()
+        elif (op == 0xFB):
+            self.EI()
+
 
         # Extended operations:
         elif (op == 0xCB):
@@ -998,4 +1012,20 @@ class CPU:
         self.set_flag('H', 0)
 
     def NOP(self):
+        pass
+
+    def HALT(self):
+        print('HALT called, not implemented, passing')
+        pass
+
+    def STOP(self):
+        print('STOP called, not implemented, passing')
+        pass
+
+    def DI(self):
+        print('DI called, not implemented, passing')
+        pass
+
+    def EI(self):
+        print('EI called, not implemented, passing')
         pass
