@@ -598,6 +598,8 @@ class CPU:
             self.CPL()
         elif (op == 0x3F):
             self.CCF()
+        elif (op == 0x37):
+            self.SCF()
 
         # Extended operations:
         elif (op == 0xCB):
@@ -985,5 +987,10 @@ class CPU:
 
     def CCF(self):
         self.set_flag('C', self.get_flag('C') ^ 1)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def SCF(self):
+        self.set_flag('C', 1)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
