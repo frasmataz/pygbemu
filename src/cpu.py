@@ -1066,12 +1066,9 @@ class CPU:
 
     def RRCA(self):
         val = self.get_reg_8('A')
-
-        if ((val % 2) == 1):
-            self.set_flag('C', 1)
-            val -= 1
-        else:
-            self.set_flag('C', 0)
+        
+        self.set_flag('C', val % 2)
+        val -= val % 2
 
         self.set_reg_8('A', val >> 1)
         self.set_flag('N', 0)
@@ -1081,11 +1078,8 @@ class CPU:
         val = self.get_reg_8('A')
         old_c = self.get_flag('C')
 
-        if ((val % 2) == 1):
-            self.set_flag('C', 1)
-            val -= 1
-        else:
-            self.set_flag('C', 0)
+        self.set_flag('C', val % 2)
+        val -= val % 2
 
         self.set_reg_8('A', (val >> 1) + (old_c * 0x80))
         self.set_flag('N', 0)
