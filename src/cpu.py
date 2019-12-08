@@ -678,6 +678,34 @@ class CPU:
                 self.RL_n('H')
             elif (op2 == 0x15):
                 self.RL_n('L')
+            elif (op2 == 0x0F):
+                self.RRC_n('A')
+            elif (op2 == 0x08):
+                self.RRC_n('B')
+            elif (op2 == 0x09):
+                self.RRC_n('C')
+            elif (op2 == 0x0A):
+                self.RRC_n('D')
+            elif (op2 == 0x0B):
+                self.RRC_n('E')
+            elif (op2 == 0x0C):
+                self.RRC_n('H')
+            elif (op2 == 0x0D):
+                self.RRC_n('L')
+            elif (op2 == 0x1F):
+                self.RR_n('A')
+            elif (op2 == 0x18):
+                self.RR_n('B')
+            elif (op2 == 0x19):
+                self.RR_n('C')
+            elif (op2 == 0x1A):
+                self.RR_n('D')
+            elif (op2 == 0x1B):
+                self.RR_n('E')
+            elif (op2 == 0x1C):
+                self.RR_n('H')
+            elif (op2 == 0x1D):
+                self.RR_n('L')
             else:
                 raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
 
@@ -1148,3 +1176,26 @@ class CPU:
         self.set_flag('N', 0)
         self.set_flag('H', 0)
         self.set_reg_8(reg, val)
+
+    def RRC_n(self, reg):
+        val = self.get_reg_8(reg)
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+
+        self.set_reg_8(reg, val >> 1)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def RR_n(self, reg):
+        val = self.get_reg_8(reg)
+        old_c = self.get_flag('C')
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+
+        self.set_reg_8(reg, (val >> 1) + (old_c * 0x80))
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)

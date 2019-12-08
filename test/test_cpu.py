@@ -2044,3 +2044,133 @@ def test_RL_n():
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 0
         assert cpu.get_flag('C') == 1
+
+def test_RRC_n():
+    ops = {
+        0x0F: 'A',
+        0x08: 'B',
+        0x09: 'C',
+        0x0A: 'D',
+        0x0B: 'E',
+        0x0C: 'H',
+        0x0D: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x4B
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x34
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x01)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+def test_RR_n():
+    ops = {
+        0x1F: 'A',
+        0x18: 'B',
+        0x19: 'C',
+        0x1A: 'D',
+        0x1B: 'E',
+        0x1C: 'H',
+        0x1D: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test no carry -> no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x4B
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test no carry -> carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x34
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test carry -> no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_flag('C', 1)
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xCB
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test carry -> carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_flag('C', 1)
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xB4
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x01)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
