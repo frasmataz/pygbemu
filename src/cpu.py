@@ -601,6 +601,10 @@ class CPU:
         elif (op == 0x37):
             self.SCF()
 
+        # Rotates & shifts
+        elif (op == 0x07):
+            self.RLCA()
+
         # Control flow
         # TODO: Sort out interrupts and the likes
         elif (op == 0x00):
@@ -1029,3 +1033,14 @@ class CPU:
     def EI(self):
         print('EI called, not implemented, passing')
         pass
+
+    def RLCA(self):
+        val = self.get_reg_8('A') << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        self.set_flag('C', (self.get_reg_8('A') & 0b10000000) >> 7)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_reg_8('A', val)

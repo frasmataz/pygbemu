@@ -1714,3 +1714,24 @@ def test_NOP():
     cpu = CPU(MMU(rom_file))
     cpu.tick()
     assert cpu.get_reg_16('PC') == 0x0001
+
+def test_RLCA():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x07
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x96)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x2C
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x07
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x69)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xD2
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
