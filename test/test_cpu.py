@@ -1778,3 +1778,67 @@ def test_RLA():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 0
+
+def test_RRCA():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x0F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x96)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x4B
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x0F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x69)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x34
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+def test_RRA():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x1F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x96)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x4B
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x1F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_8('A', 0x69)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0x34
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x1F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
+    cpu.set_reg_8('A', 0x96)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xCB
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x1F
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
+    cpu.set_reg_8('A', 0x69)
+    cpu.tick()
+    assert cpu.get_reg_8('A') == 0xB4
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
