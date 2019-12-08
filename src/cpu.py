@@ -604,6 +604,8 @@ class CPU:
         # Rotates & shifts
         elif (op == 0x07):
             self.RLCA()
+        elif (op == 0x17):
+            self.RLA()
 
         # Control flow
         # TODO: Sort out interrupts and the likes
@@ -1039,6 +1041,19 @@ class CPU:
 
         if ((val & 0x100) >> 8 == 1):
             val -= 0x100
+
+        self.set_flag('C', (self.get_reg_8('A') & 0b10000000) >> 7)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_reg_8('A', val)
+
+    def RLA(self):
+        val = self.get_reg_8('A') << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        val += self.get_flag('C')
 
         self.set_flag('C', (self.get_reg_8('A') & 0b10000000) >> 7)
         self.set_flag('N', 0)
