@@ -631,6 +631,7 @@ class CPU:
         elif (op == 0xCB):
             op2 = self.fetch_8()
 
+            # Swaps
             if (op2 == 0x37):
                 self.SWAP_r('A')
             elif (op2 == 0x30):
@@ -647,6 +648,39 @@ class CPU:
                 self.SWAP_r('L')
             elif (op2 == 0x36):
                 self.SWAP_HL()
+
+            # Rotates
+            elif (op2 == 0x07):
+                self.RLC_n('A')
+            elif (op2 == 0x00):
+                self.RLC_n('B')
+            elif (op2 == 0x01):
+                self.RLC_n('C')
+            elif (op2 == 0x02):
+                self.RLC_n('D')
+            elif (op2 == 0x03):
+                self.RLC_n('E')
+            elif (op2 == 0x04):
+                self.RLC_n('H')
+            elif (op2 == 0x05):
+                self.RLC_n('L')
+            elif (op2 == 0x17):
+                self.RL_n('A')
+            elif (op2 == 0x10):
+                self.RL_n('B')
+            elif (op2 == 0x11):
+                self.RL_n('C')
+            elif (op2 == 0x12):
+                self.RL_n('D')
+            elif (op2 == 0x13):
+                self.RL_n('E')
+            elif (op2 == 0x14):
+                self.RL_n('H')
+            elif (op2 == 0x15):
+                self.RL_n('L')
+            else:
+                raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
+
 
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
@@ -1088,3 +1122,29 @@ class CPU:
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
+
+    def RLC_n(self, reg):
+        val = self.get_reg_8(reg) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        self.set_flag('C', (self.get_reg_8(reg) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_reg_8(reg, val)
+
+    def RL_n(self, reg):
+        val = self.get_reg_8(reg) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        val += self.get_flag('C')
+
+        self.set_flag('C', (self.get_reg_8(reg) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_reg_8(reg, val)

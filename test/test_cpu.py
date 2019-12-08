@@ -1914,3 +1914,133 @@ def test_RRA():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 1
+
+def test_RLC_n():
+    ops = {
+        0x07: 'A',
+        0x00: 'B',
+        0x01: 'C',
+        0x02: 'D',
+        0x03: 'E',
+        0x04: 'H',
+        0x05: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x2C
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xD2
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x80)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+def test_RL_n():
+    ops = {
+        0x17: 'A',
+        0x10: 'B',
+        0x11: 'C',
+        0x12: 'D',
+        0x13: 'E',
+        0x14: 'H',
+        0x15: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test no carry -> carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x2C
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test no carry -> no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xD2
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test carry -> carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_flag('C', 1)
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x2D
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test carry -> no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_flag('C', 1)
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xD3
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x80)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
