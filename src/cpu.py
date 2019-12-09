@@ -706,6 +706,14 @@ class CPU:
                 self.RR_n('H')
             elif (op2 == 0x1D):
                 self.RR_n('L')
+            elif (op2 == 0x06):
+                self.RLC_HL()
+            elif (op2 == 0x16):
+                self.RL_HL()
+            elif (op2 == 0x0E):
+                self.RRC_HL()
+            elif (op2 == 0x1E):
+                self.RR_HL()
             else:
                 raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
 
@@ -1204,6 +1212,59 @@ class CPU:
         val -= val % 2
 
         self.set_reg_8(reg, (val >> 1) + (old_c * 0x80))
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def RLC_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL')) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+            val += 0x01
+
+        self.set_flag('C', (self.mmu.get(self.get_reg_16('HL')) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.mmu.set(self.get_reg_16('HL'), val)
+
+    def RL_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL')) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        val += self.get_flag('C')
+
+        self.set_flag('C', (self.mmu.get(self.get_reg_16('HL')) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.mmu.set(self.get_reg_16('HL'), val)
+
+    def RRC_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL'))
+
+        carry = val % 2
+        self.set_flag('C', carry)
+        val -= carry
+        val = val >> 1
+        val += 0x80 * carry
+
+        self.mmu.set(self.get_reg_16('HL'), val)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def RR_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL'))
+        old_c = self.get_flag('C')
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+
+        self.mmu.set(self.get_reg_16('HL'), (val >> 1) + (old_c * 0x80))
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
