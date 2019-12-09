@@ -765,6 +765,11 @@ class CPU:
                 self.SRA_HL()
             elif (op2 == 0x3E):
                 self.SRL_HL()
+
+            # Bit functions
+
+            elif (op2 >= 0x40 and op2 <= 0x7F):
+                self.BIT(op2)
             else:
                 raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
 
@@ -1399,3 +1404,35 @@ class CPU:
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
+
+    def BIT(self, opcode):
+        opcode -= 0x40
+        reg_index = opcode & 0b00000111
+
+        reg = ''
+        if (reg_index == 0):
+            reg = 'B'
+        elif (reg_index == 1):
+            reg = 'C'
+        elif (reg_index == 2):
+            reg = 'D'
+        elif (reg_index == 3):
+            reg = 'E'
+        elif (reg_index == 4):
+            reg = 'H'
+        elif (reg_index == 5):
+            reg = 'L'
+        elif (reg_index == 6):
+            reg = 'HL'
+        elif (reg_index == 7):
+            reg = 'A'
+
+        bit = int((opcode & 0b11111000) / 0x08)
+
+        if (reg == 'HL'):
+            self.set_flag('Z', (self.mmu.get(self.get_reg_16(reg)) >> bit) ^ 0x01)
+        else:
+            self.set_flag('Z', (self.get_reg_8(reg) >> bit) ^ 0x01)
+
+        self.set_flag('N', 0)
+        self.set_flag('H', 1)
