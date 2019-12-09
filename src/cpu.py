@@ -714,6 +714,57 @@ class CPU:
                 self.RRC_HL()
             elif (op2 == 0x1E):
                 self.RR_HL()
+
+            # Shifts
+
+            elif (op2 == 0x27):
+                self.SLA_n('A')
+            elif (op2 == 0x20):
+                self.SLA_n('B')
+            elif (op2 == 0x21):
+                self.SLA_n('C')
+            elif (op2 == 0x22):
+                self.SLA_n('D')
+            elif (op2 == 0x23):
+                self.SLA_n('E')
+            elif (op2 == 0x24):
+                self.SLA_n('H')
+            elif (op2 == 0x25):
+                self.SLA_n('L')
+            elif (op2 == 0x2F):
+                self.SRA_n('A')
+            elif (op2 == 0x28):
+                self.SRA_n('B')
+            elif (op2 == 0x29):
+                self.SRA_n('C')
+            elif (op2 == 0x2A):
+                self.SRA_n('D')
+            elif (op2 == 0x2B):
+                self.SRA_n('E')
+            elif (op2 == 0x2C):
+                self.SRA_n('H')
+            elif (op2 == 0x2D):
+                self.SRA_n('L')
+            elif (op2 == 0x3F):
+                self.SRL_n('A')
+            elif (op2 == 0x38):
+                self.SRL_n('B')
+            elif (op2 == 0x39):
+                self.SRL_n('C')
+            elif (op2 == 0x3A):
+                self.SRL_n('D')
+            elif (op2 == 0x3B):
+                self.SRL_n('E')
+            elif (op2 == 0x3C):
+                self.SRL_n('H')
+            elif (op2 == 0x3D):
+                self.SRL_n('L')
+            elif (op2 == 0x26):
+                self.SLA_HL()
+            elif (op2 == 0x2E):
+                self.SRA_HL()
+            elif (op2 == 0x3E):
+                self.SRL_HL()
             else:
                 raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
 
@@ -1110,6 +1161,8 @@ class CPU:
         print('EI called, not implemented, passing')
         pass
 
+    # Rotates
+
     def RLCA(self):
         val = self.get_reg_8('A') << 1
 
@@ -1265,6 +1318,84 @@ class CPU:
         val -= val % 2
 
         self.mmu.set(self.get_reg_16('HL'), (val >> 1) + (old_c * 0x80))
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    # Shifts
+
+    def SLA_n(self, reg):
+        val = self.get_reg_8(reg) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        self.set_flag('C', (self.get_reg_8(reg) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.set_reg_8(reg, val)
+
+    def SRA_n(self, reg):
+        val = self.get_reg_8(reg)
+        msb = val & 0b10000000
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+        val = val >> 1
+        val += msb
+
+        self.set_reg_8(reg, val)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def SRL_n(self, reg):
+        val = self.get_reg_8(reg)
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+        val = val >> 1
+
+        self.set_reg_8(reg, val)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def SLA_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL')) << 1
+
+        if ((val & 0x100) >> 8 == 1):
+            val -= 0x100
+
+        self.set_flag('C', (self.mmu.get(self.get_reg_16('HL')) & 0b10000000) >> 7)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+        self.mmu.set(self.get_reg_16('HL'), val)
+
+    def SRA_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL'))
+        msb = val & 0b10000000
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+        val = val >> 1
+        val += msb
+
+        self.mmu.set(self.get_reg_16('HL'), val)
+        self.set_flag('Z', 1 if val == 0 else 0)
+        self.set_flag('N', 0)
+        self.set_flag('H', 0)
+
+    def SRL_HL(self):
+        val = self.mmu.get(self.get_reg_16('HL'))
+
+        self.set_flag('C', val % 2)
+        val -= val % 2
+        val = val >> 1
+
+        self.mmu.set(self.get_reg_16('HL'), val)
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)

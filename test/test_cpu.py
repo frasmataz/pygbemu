@@ -2408,3 +2408,287 @@ def test_RR_HL():
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
     assert cpu.get_flag('C') == 1
+
+# Shifts
+
+def test_SLA_n():
+    ops = {
+        0x27: 'A',
+        0x20: 'B',
+        0x21: 'C',
+        0x22: 'D',
+        0x23: 'E',
+        0x24: 'H',
+        0x25: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x2C
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xD2
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x80)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+def test_SRA_n():
+    ops = {
+        0x2F: 'A',
+        0x28: 'B',
+        0x29: 'C',
+        0x2A: 'D',
+        0x2B: 'E',
+        0x2C: 'H',
+        0x2D: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0xCB
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x34
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x01)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+def test_SRL_n():
+    ops = {
+        0x3F: 'A',
+        0x38: 'B',
+        0x39: 'C',
+        0x3A: 'D',
+        0x3B: 'E',
+        0x3C: 'H',
+        0x3D: 'L'
+    }
+
+    for op, reg in ops.items():
+        # Test carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x96)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x4B
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 0
+
+        # Test no carry
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x69)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x34
+        assert cpu.get_flag('Z') == 0
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+        # Test zero
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = op
+        cpu = CPU(MMU(rom_file))
+        cpu.set_reg_8(reg, 0x01)
+        cpu.tick()
+        assert cpu.get_reg_8(reg) == 0x00
+        assert cpu.get_flag('Z') == 1
+        assert cpu.get_flag('N') == 0
+        assert cpu.get_flag('H') == 0
+        assert cpu.get_flag('C') == 1
+
+def test_SLAs_HL():
+    # Test carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x26
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x96)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x2C
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    # Test no carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x26
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x69)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0xD2
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test zero
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x26
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x80)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x00
+    assert cpu.get_flag('Z') == 1
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+def test_SRA_HL():
+    # Test no carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x2E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x96)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0xCB
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x2E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x69)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x34
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    # Test zero
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x2E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x01)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x00
+    assert cpu.get_flag('Z') == 1
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+def test_SRL_HL():
+    # Test no carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x3E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x96)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x4B
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 0
+
+    # Test carry
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x3E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x69)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x34
+    assert cpu.get_flag('Z') == 0
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
+
+    # Test zero
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCB
+    rom_file[0x0001] = 0x3E
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xC123, 0x01)
+    cpu.set_reg_16('HL', 0xC123)
+    cpu.tick()
+    assert cpu.mmu.get(0xC123) == 0x00
+    assert cpu.get_flag('Z') == 1
+    assert cpu.get_flag('N') == 0
+    assert cpu.get_flag('H') == 0
+    assert cpu.get_flag('C') == 1
