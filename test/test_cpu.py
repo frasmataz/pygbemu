@@ -1715,6 +1715,8 @@ def test_NOP():
     cpu.tick()
     assert cpu.get_reg_16('PC') == 0x0001
 
+# Rotates
+
 def test_RLCA():
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
@@ -1722,7 +1724,7 @@ def test_RLCA():
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x96)
     cpu.tick()
-    assert cpu.get_reg_8('A') == 0x2C
+    assert cpu.get_reg_8('A') == 0x2D
     assert cpu.get_flag('Z') == 0
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
@@ -1744,13 +1746,13 @@ def test_RLCA():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
     rom_file[0x0000] = 0x07
     cpu = CPU(MMU(rom_file))
-    cpu.set_reg_8('A', 0x80)
+    cpu.set_reg_8('A', 0x00)
     cpu.tick()
     assert cpu.get_reg_8('A') == 0x00
     assert cpu.get_flag('Z') == 1
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
-    assert cpu.get_flag('C') == 1
+    assert cpu.get_flag('C') == 0
 
 def test_RLA():
     # Test no carry -> carry
@@ -1834,7 +1836,7 @@ def test_RRCA():
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x69)
     cpu.tick()
-    assert cpu.get_reg_8('A') == 0x34
+    assert cpu.get_reg_8('A') == 0xB4
     assert cpu.get_flag('Z') == 0
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
@@ -1844,13 +1846,13 @@ def test_RRCA():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
     rom_file[0x0000] = 0x0F
     cpu = CPU(MMU(rom_file))
-    cpu.set_reg_8('A', 0x01)
+    cpu.set_reg_8('A', 0x00)
     cpu.tick()
     assert cpu.get_reg_8('A') == 0x00
     assert cpu.get_flag('Z') == 1
     assert cpu.get_flag('N') == 0
     assert cpu.get_flag('H') == 0
-    assert cpu.get_flag('C') == 1
+    assert cpu.get_flag('C') == 0
 
 def test_RRA():
     # Test no carry -> no carry
@@ -1934,7 +1936,7 @@ def test_RLC_n():
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
-        assert cpu.get_reg_8(reg) == 0x2C
+        assert cpu.get_reg_8(reg) == 0x2D
         assert cpu.get_flag('Z') == 0
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 0
@@ -1958,13 +1960,13 @@ def test_RLC_n():
         rom_file[0x0000] = 0xCB
         rom_file[0x0001] = op
         cpu = CPU(MMU(rom_file))
-        cpu.set_reg_8(reg, 0x80)
+        cpu.set_reg_8(reg, 0x00)
         cpu.tick()
         assert cpu.get_reg_8(reg) == 0x00
         assert cpu.get_flag('Z') == 1
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 0
-        assert cpu.get_flag('C') == 1
+        assert cpu.get_flag('C') == 0
 
 def test_RL_n():
     ops = {
@@ -2077,7 +2079,7 @@ def test_RRC_n():
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
-        assert cpu.get_reg_8(reg) == 0x34
+        assert cpu.get_reg_8(reg) == 0xB4
         assert cpu.get_flag('Z') == 0
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 0
@@ -2088,13 +2090,13 @@ def test_RRC_n():
         rom_file[0x0000] = 0xCB
         rom_file[0x0001] = op
         cpu = CPU(MMU(rom_file))
-        cpu.set_reg_8(reg, 0x01)
+        cpu.set_reg_8(reg, 0x00)
         cpu.tick()
         assert cpu.get_reg_8(reg) == 0x00
         assert cpu.get_flag('Z') == 1
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 0
-        assert cpu.get_flag('C') == 1
+        assert cpu.get_flag('C') == 0
 
 def test_RR_n():
     ops = {

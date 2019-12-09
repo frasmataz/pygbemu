@@ -1107,6 +1107,7 @@ class CPU:
 
         if ((val & 0x100) >> 8 == 1):
             val -= 0x100
+            val += 0x01
 
         self.set_flag('C', (self.get_reg_8('A') & 0b10000000) >> 7)
         self.set_flag('Z', 1 if val == 0 else 0)
@@ -1131,10 +1132,13 @@ class CPU:
     def RRCA(self):
         val = self.get_reg_8('A')
 
-        self.set_flag('C', val % 2)
-        val -= val % 2
+        carry = val % 2
+        self.set_flag('C', carry)
+        val -= carry
+        val = val >> 1
+        val += 0x80 * carry
 
-        self.set_reg_8('A', val >> 1)
+        self.set_reg_8('A', val)
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
@@ -1156,6 +1160,7 @@ class CPU:
 
         if ((val & 0x100) >> 8 == 1):
             val -= 0x100
+            val += 0x01
 
         self.set_flag('C', (self.get_reg_8(reg) & 0b10000000) >> 7)
         self.set_flag('Z', 1 if val == 0 else 0)
@@ -1180,10 +1185,13 @@ class CPU:
     def RRC_n(self, reg):
         val = self.get_reg_8(reg)
 
-        self.set_flag('C', val % 2)
-        val -= val % 2
+        carry = val % 2
+        self.set_flag('C', carry)
+        val -= carry
+        val = val >> 1
+        val += 0x80 * carry
 
-        self.set_reg_8(reg, val >> 1)
+        self.set_reg_8(reg, val)
         self.set_flag('Z', 1 if val == 0 else 0)
         self.set_flag('N', 0)
         self.set_flag('H', 0)
