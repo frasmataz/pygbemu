@@ -639,6 +639,8 @@ class CPU:
             self.JP_C()
         elif (op == 0xE9):
             self.JP_HL()
+        elif (op == 0x18):
+            self.JR_n()
 
 
         # Extended operations:
@@ -1537,3 +1539,6 @@ class CPU:
 
     def JP_HL(self):
         self.pc = self.get_reg_16('HL')
+
+    def JR_n(self):
+        self.pc += self.fetch_8()

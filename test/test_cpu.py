@@ -2917,3 +2917,12 @@ def test_JP_HL():
     cpu.set_reg_16('HL', 0x1234)
     cpu.tick()
     assert cpu.pc == 0x1234
+
+def test_JR_n():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0012] = 0x18
+    rom_file[0x0013] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0012
+    cpu.tick()
+    assert cpu.pc == 0x0047
