@@ -14,7 +14,7 @@ class CPU:
         }
 
         self.sp = 0xFFFE
-        self.pc = 0x0000
+        self.pc = 0x0100
 
         self.mmu = mmu
 
@@ -1575,18 +1575,26 @@ class CPU:
     def JP_NZ(self):
         if (self.get_flag('Z') == 0):
             self.pc = self.fetch_16()
+        else:
+            self.pc += 2
 
     def JP_Z(self):
         if (self.get_flag('Z') == 1):
             self.pc = self.fetch_16()
+        else:
+            self.pc += 2
 
     def JP_NC(self):
         if (self.get_flag('C') == 0):
             self.pc = self.fetch_16()
+        else:
+            self.pc += 2
 
     def JP_C(self):
         if (self.get_flag('C') == 1):
             self.pc = self.fetch_16()
+        else:
+            self.pc += 2
 
     def JP_HL(self):
         self.pc = self.get_reg_16('HL')
@@ -1597,18 +1605,26 @@ class CPU:
     def JR_NZ(self):
         if (self.get_flag('Z') == 0):
             self.pc += self.fetch_8()
+        else:
+            self.pc += 1
 
     def JR_Z(self):
         if (self.get_flag('Z') == 1):
             self.pc += self.fetch_8()
+        else:
+            self.pc += 1
 
     def JR_NC(self):
         if (self.get_flag('C') == 0):
             self.pc += self.fetch_8()
+        else:
+            self.pc += 1
 
     def JR_C(self):
         if (self.get_flag('C') == 1):
             self.pc += self.fetch_8()
+        else:
+            self.pc += 1
 
     # Calls
 
@@ -1619,18 +1635,26 @@ class CPU:
     def CALL_NZ(self):
         if (self.get_flag('Z') == 0):
             self.CALL_nn()
+        else:
+            self.pc += 2
 
     def CALL_Z(self):
         if (self.get_flag('Z') == 1):
             self.CALL_nn()
+        else:
+            self.pc += 2
 
     def CALL_NC(self):
         if (self.get_flag('C') == 0):
             self.CALL_nn()
+        else:
+            self.pc += 2
 
     def CALL_C(self):
         if (self.get_flag('C') == 1):
             self.CALL_nn()
+        else:
+            self.pc += 2
 
     # Restarts
 

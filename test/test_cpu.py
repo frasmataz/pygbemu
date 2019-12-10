@@ -22,7 +22,7 @@ def test_registers():
         assert cpu.get_reg_8(_8regs[1]) == 0x55
 
     assert cpu.sp == 0xFFFE
-    assert cpu.pc == 0x0000
+    assert cpu.pc == 0x0100
 
 def test_flags():
     flags = ['Z', 'N', 'H', 'C']
@@ -111,8 +111,8 @@ def test_LD_nn_n():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
-        rom_file[0x0001] = 0xAA
+        rom_file[0x0100] = op
+        rom_file[0x0101] = 0xAA
         cpu = CPU(MMU(rom_file))
         cpu.tick()
         assert cpu.get_reg_8(reg) == 0xAA
@@ -166,7 +166,7 @@ def test_LD_r1_r2():
 
     for op, regs in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(regs[1], 0xAA)
         cpu.tick()
@@ -185,10 +185,10 @@ def test_LD_r_HL():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
-        rom_file[0x0100] = 0xAA
+        rom_file[0x0100] = op
+        rom_file[0x0200] = 0xAA
         cpu = CPU(MMU(rom_file))
-        cpu.set_reg_16('HL', 0x0100)
+        cpu.set_reg_16('HL', 0x0200)
         cpu.tick()
         assert cpu.get_reg_8(reg) == 0xAA
 
@@ -204,7 +204,7 @@ def test_LD_HL_r():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0xAA)
         cpu.set_reg_16('HL', 0xC002)
@@ -224,7 +224,7 @@ def test_LD_A_r():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0xAA)
         cpu.tick()
@@ -239,7 +239,7 @@ def test_LD_A_rr():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.mmu.set(0xC002, 0xAA)
         cpu.set_reg_16(reg, 0xC002)
@@ -248,9 +248,9 @@ def test_LD_A_rr():
 
 def test_LD_A_nn():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xFA
-    rom_file[0x0001] = 0x02
-    rom_file[0x0002] = 0xC0
+    rom_file[0x0100] = 0xFA
+    rom_file[0x0101] = 0x02
+    rom_file[0x0102] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC002, 0xAA)
     cpu.tick()
@@ -258,8 +258,8 @@ def test_LD_A_nn():
 
 def test_LD_A_n():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x3E
-    rom_file[0x0001] = 0xAA
+    rom_file[0x0100] = 0x3E
+    rom_file[0x0101] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.tick()
     assert cpu.get_reg_8('A') == 0xAA
@@ -277,7 +277,7 @@ def test_LD_n_A():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0xAA)
         cpu.tick()
@@ -292,7 +292,7 @@ def test_LD_rr_A():
 
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0xAA)
         cpu.set_reg_16(reg, 0xC002)
@@ -301,9 +301,9 @@ def test_LD_rr_A():
 
 def test_LD_nn_A():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xEA
-    rom_file[0x0001] = 0x02
-    rom_file[0x0002] = 0xC0
+    rom_file[0x0100] = 0xEA
+    rom_file[0x0101] = 0x02
+    rom_file[0x0102] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xAA)
     cpu.tick()
@@ -311,7 +311,7 @@ def test_LD_nn_A():
 
 def test_LD_A_C():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF2
+    rom_file[0x0100] = 0xF2
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('C', 0x24)
     cpu.mmu.set(0xFF24, 0xAA)
@@ -320,7 +320,7 @@ def test_LD_A_C():
 
 def test_LD_C_A():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE2
+    rom_file[0x0100] = 0xE2
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xAA)
     cpu.set_reg_8('C', 0x24)
@@ -329,7 +329,7 @@ def test_LD_C_A():
 
 def test_LDD_A_HL():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x3A
+    rom_file[0x0100] = 0x3A
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xC002)
     cpu.mmu.set(0xC002, 0xAA)
@@ -338,16 +338,17 @@ def test_LDD_A_HL():
     assert cpu.get_reg_16('HL') == 0xC001
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x3A
+    rom_file[0x0100] = 0x3A
+    rom_file[0x0000] = 0x69
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x0000)
     cpu.tick()
-    assert cpu.get_reg_8('A') == 0x3A
+    assert cpu.get_reg_8('A') == 0x69
     assert cpu.get_reg_16('HL') == 0xFFFF
 
 def test_LDD_HL_A():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x32
+    rom_file[0x0100] = 0x32
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xC002)
     cpu.set_reg_8('A', 0xAA)
@@ -357,7 +358,7 @@ def test_LDD_HL_A():
 
 def test_LDI_A_HL():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x2A
+    rom_file[0x0100] = 0x2A
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xC002)
     cpu.mmu.set(0xC002, 0xAA)
@@ -366,7 +367,7 @@ def test_LDI_A_HL():
     assert cpu.get_reg_16('HL') == 0xC003
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x2A
+    rom_file[0x0100] = 0x2A
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xFFFF)
     cpu.tick()
@@ -374,7 +375,7 @@ def test_LDI_A_HL():
 
 def test_LDI_HL_A():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x22
+    rom_file[0x0100] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xC002)
     cpu.set_reg_8('A', 0xAA)
@@ -384,8 +385,8 @@ def test_LDI_HL_A():
 
 def test_LDH_n_A():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE0
-    rom_file[0x0001] = 0x12
+    rom_file[0x0100] = 0xE0
+    rom_file[0x0101] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xAA)
     cpu.tick()
@@ -393,8 +394,8 @@ def test_LDH_n_A():
 
 def test_LDH_A_n():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF0
-    rom_file[0x0001] = 0x12
+    rom_file[0x0100] = 0xF0
+    rom_file[0x0101] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xFF12, 0xAA)
     cpu.tick()
@@ -411,16 +412,16 @@ def test_LD_n_nn():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
-        rom_file[0x0001] = 0x34
-        rom_file[0x0002] = 0x12
+        rom_file[0x0100] = op
+        rom_file[0x0101] = 0x34
+        rom_file[0x0102] = 0x12
         cpu = CPU(MMU(rom_file))
         cpu.tick()
         assert cpu.get_reg_16(reg) == 0x1234
 
 def test_LD_SP_HL():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF9
+    rom_file[0x0100] = 0xF9
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1234)
     cpu.tick()
@@ -429,8 +430,8 @@ def test_LD_SP_HL():
 def test_LD_HL_SPn():
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF8
-    rom_file[0x0001] = 0x12
+    rom_file[0x0100] = 0xF8
+    rom_file[0x0101] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0x1234)
     cpu.tick()
@@ -442,8 +443,8 @@ def test_LD_HL_SPn():
 
     # Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF8
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xF8
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0x0FFF)
     cpu.tick()
@@ -455,8 +456,8 @@ def test_LD_HL_SPn():
 
     # Test full-carry and zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF8
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xF8
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0xFFFF)
     cpu.tick()
@@ -468,9 +469,9 @@ def test_LD_HL_SPn():
 
 def test_LD_nn_SP():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x08
-    rom_file[0x0001] = 0x02
-    rom_file[0x0002] = 0xC0
+    rom_file[0x0100] = 0x08
+    rom_file[0x0101] = 0x02
+    rom_file[0x0102] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0xAABB)
     cpu.tick()
@@ -486,7 +487,7 @@ def test_PUSH_nn():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_16(reg, 0xAABB)
         cpu.set_reg_16('SP', 0xC002)
@@ -504,7 +505,7 @@ def test_POP_nn():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         rom_file[0x00F0] = 0xBB
         rom_file[0x00F1] = 0xAA
         cpu = CPU(MMU(rom_file))
@@ -518,7 +519,7 @@ def test_POP_nn():
 def test_ADD_A_n():
     # Add A to itself
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x87
+    rom_file[0x0100] = 0x87
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.tick()
@@ -539,7 +540,7 @@ def test_ADD_A_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x11)
         cpu.set_reg_8(reg, 0x22)
@@ -552,7 +553,7 @@ def test_ADD_A_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x86
+    rom_file[0x0100] = 0x86
     rom_file[0x0123] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
@@ -566,8 +567,8 @@ def test_ADD_A_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC6
-    rom_file[0x0001] = 0x22
+    rom_file[0x0100] = 0xC6
+    rom_file[0x0101] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.tick()
@@ -579,8 +580,8 @@ def test_ADD_A_n():
 
     # Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC6
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xC6
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x0F)
     cpu.tick()
@@ -592,8 +593,8 @@ def test_ADD_A_n():
 
     # Test full-carry and zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC6
-    rom_file[0x0001] = 0x10
+    rom_file[0x0100] = 0xC6
+    rom_file[0x0101] = 0x10
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xF0)
     cpu.tick()
@@ -606,7 +607,7 @@ def test_ADD_A_n():
 def test_ADC_A_n():
     # Add A to itself
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x8F
+    rom_file[0x0100] = 0x8F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.set_flag('C', 1)
@@ -628,7 +629,7 @@ def test_ADC_A_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x11)
         cpu.set_flag('C', 1)
@@ -642,7 +643,7 @@ def test_ADC_A_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x8E
+    rom_file[0x0100] = 0x8E
     rom_file[0x0123] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
@@ -657,8 +658,8 @@ def test_ADC_A_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCE
-    rom_file[0x0001] = 0x22
+    rom_file[0x0100] = 0xCE
+    rom_file[0x0101] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.set_flag('C', 1)
@@ -671,8 +672,8 @@ def test_ADC_A_n():
 
     # Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCE
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xCE
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x0E)
     cpu.set_flag('C', 1)
@@ -685,8 +686,8 @@ def test_ADC_A_n():
 
     # Test full-carry and zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCE
-    rom_file[0x0001] = 0x0F
+    rom_file[0x0100] = 0xCE
+    rom_file[0x0101] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xF0)
     cpu.set_flag('C', 1)
@@ -700,7 +701,7 @@ def test_ADC_A_n():
 def test_SUB_n():
     # Sub A from itself
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x97
+    rom_file[0x0100] = 0x97
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.tick()
@@ -721,7 +722,7 @@ def test_SUB_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x33)
         cpu.set_reg_8(reg, 0x22)
@@ -734,7 +735,7 @@ def test_SUB_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x96
+    rom_file[0x0100] = 0x96
     rom_file[0x0123] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x33)
@@ -748,8 +749,8 @@ def test_SUB_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD6
-    rom_file[0x0001] = 0x22
+    rom_file[0x0100] = 0xD6
+    rom_file[0x0101] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x33)
     cpu.tick()
@@ -761,8 +762,8 @@ def test_SUB_n():
 
     # Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD6
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xD6
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.tick()
@@ -774,8 +775,8 @@ def test_SUB_n():
 
     # Test full-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD6
-    rom_file[0x0001] = 0x10
+    rom_file[0x0100] = 0xD6
+    rom_file[0x0101] = 0x10
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.tick()
@@ -788,7 +789,7 @@ def test_SUB_n():
 def test_SBC_n():
     # Sub A from itself
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x9F
+    rom_file[0x0100] = 0x9F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.set_flag('C', 1)
@@ -810,7 +811,7 @@ def test_SBC_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x33)
         cpu.set_reg_8(reg, 0x22)
@@ -824,7 +825,7 @@ def test_SBC_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x9E
+    rom_file[0x0100] = 0x9E
     rom_file[0x0123] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x33)
@@ -839,8 +840,8 @@ def test_SBC_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDE
-    rom_file[0x0001] = 0x22
+    rom_file[0x0100] = 0xDE
+    rom_file[0x0101] = 0x22
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x33)
     cpu.set_flag('C', 1)
@@ -853,8 +854,8 @@ def test_SBC_n():
 
     # Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDE
-    rom_file[0x0001] = 0x01
+    rom_file[0x0100] = 0xDE
+    rom_file[0x0101] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.set_flag('C', 1)
@@ -867,8 +868,8 @@ def test_SBC_n():
 
     # Test full-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDE
-    rom_file[0x0001] = 0x0F
+    rom_file[0x0100] = 0xDE
+    rom_file[0x0101] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.set_flag('C', 1)
@@ -882,7 +883,7 @@ def test_SBC_n():
 def test_AND_n():
     # A
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xA7
+    rom_file[0x0100] = 0xA7
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -903,7 +904,7 @@ def test_AND_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0xCC)
         cpu.set_reg_8(reg, 0xAA)
@@ -916,7 +917,7 @@ def test_AND_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xA6
+    rom_file[0x0100] = 0xA6
     rom_file[0x0123] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
@@ -930,8 +931,8 @@ def test_AND_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE6
-    rom_file[0x0001] = 0xAA
+    rom_file[0x0100] = 0xE6
+    rom_file[0x0101] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -943,8 +944,8 @@ def test_AND_n():
 
     # Test zero flag
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE6
-    rom_file[0x0001] = 0xAA
+    rom_file[0x0100] = 0xE6
+    rom_file[0x0101] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x55)
     cpu.tick()
@@ -957,7 +958,7 @@ def test_AND_n():
 def test_OR_n():
     # A
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xB7
+    rom_file[0x0100] = 0xB7
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -978,7 +979,7 @@ def test_OR_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0xCC)
         cpu.set_reg_8(reg, 0xAA)
@@ -991,7 +992,7 @@ def test_OR_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xB6
+    rom_file[0x0100] = 0xB6
     rom_file[0x0123] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
@@ -1005,8 +1006,8 @@ def test_OR_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF6
-    rom_file[0x0001] = 0xAA
+    rom_file[0x0100] = 0xF6
+    rom_file[0x0101] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -1018,8 +1019,8 @@ def test_OR_n():
 
     # Test zero flag
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xF6
-    rom_file[0x0001] = 0x00
+    rom_file[0x0100] = 0xF6
+    rom_file[0x0101] = 0x00
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.tick()
@@ -1032,7 +1033,7 @@ def test_OR_n():
 def test_XOR_n():
     # A
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xAF
+    rom_file[0x0100] = 0xAF
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -1053,7 +1054,7 @@ def test_XOR_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0xCC)
         cpu.set_reg_8(reg, 0xAA)
@@ -1066,7 +1067,7 @@ def test_XOR_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xAE
+    rom_file[0x0100] = 0xAE
     rom_file[0x0123] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
@@ -1080,8 +1081,8 @@ def test_XOR_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xEE
-    rom_file[0x0001] = 0xAA
+    rom_file[0x0100] = 0xEE
+    rom_file[0x0101] = 0xAA
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCC)
     cpu.tick()
@@ -1094,7 +1095,7 @@ def test_XOR_n():
 def test_CP_n():
     # A
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xBF
+    rom_file[0x0100] = 0xBF
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.tick()
@@ -1114,7 +1115,7 @@ def test_CP_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x10)
         cpu.set_reg_8(reg, 0x10)
@@ -1125,7 +1126,7 @@ def test_CP_n():
         assert cpu.get_flag('C') == 0
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x10)
         cpu.set_reg_8(reg, 0x0F)
@@ -1136,7 +1137,7 @@ def test_CP_n():
         assert cpu.get_flag('C') == 0
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8('A', 0x10)
         cpu.set_reg_8(reg, 0x11)
@@ -1148,7 +1149,7 @@ def test_CP_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xBE
+    rom_file[0x0100] = 0xBE
     rom_file[0x0123] = 0x10
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
@@ -1160,7 +1161,7 @@ def test_CP_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xBE
+    rom_file[0x0100] = 0xBE
     rom_file[0x0123] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
@@ -1172,7 +1173,7 @@ def test_CP_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xBE
+    rom_file[0x0100] = 0xBE
     rom_file[0x0123] = 0x11
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
@@ -1185,8 +1186,8 @@ def test_CP_n():
 
     # Immediate value
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xFE
-    rom_file[0x0001] = 0x10
+    rom_file[0x0100] = 0xFE
+    rom_file[0x0101] = 0x10
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.tick()
@@ -1196,8 +1197,8 @@ def test_CP_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xFE
-    rom_file[0x0001] = 0x0F
+    rom_file[0x0100] = 0xFE
+    rom_file[0x0101] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.tick()
@@ -1207,8 +1208,8 @@ def test_CP_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xFE
-    rom_file[0x0001] = 0x11
+    rom_file[0x0100] = 0xFE
+    rom_file[0x0101] = 0x11
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.tick()
@@ -1229,7 +1230,7 @@ def test_INC_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x01)
         cpu.tick()
@@ -1239,7 +1240,7 @@ def test_INC_n():
         assert cpu.get_flag('H') == 0
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x0F)
         cpu.tick()
@@ -1249,7 +1250,7 @@ def test_INC_n():
         assert cpu.get_flag('H') == 1
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0xFF)
         cpu.tick()
@@ -1259,7 +1260,7 @@ def test_INC_n():
         assert cpu.get_flag('H') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x34
+    rom_file[0x0100] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x01)
     cpu.set_reg_16('HL', 0xC000)
@@ -1270,7 +1271,7 @@ def test_INC_n():
     assert cpu.get_flag('H') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x34
+    rom_file[0x0100] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x0F)
     cpu.set_reg_16('HL', 0xC000)
@@ -1281,7 +1282,7 @@ def test_INC_n():
     assert cpu.get_flag('H') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x34
+    rom_file[0x0100] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0xFF)
     cpu.set_reg_16('HL', 0xC000)
@@ -1303,7 +1304,7 @@ def test_DEC_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x02)
         cpu.tick()
@@ -1313,7 +1314,7 @@ def test_DEC_n():
         assert cpu.get_flag('H') == 0
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x10)
         cpu.tick()
@@ -1323,7 +1324,7 @@ def test_DEC_n():
         assert cpu.get_flag('H') == 1
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x00)
         cpu.tick()
@@ -1333,7 +1334,7 @@ def test_DEC_n():
         assert cpu.get_flag('H') == 1
 
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x01)
         cpu.tick()
@@ -1343,7 +1344,7 @@ def test_DEC_n():
         assert cpu.get_flag('H') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x35
+    rom_file[0x0100] = 0x35
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x02)
     cpu.set_reg_16('HL', 0xC000)
@@ -1354,7 +1355,7 @@ def test_DEC_n():
     assert cpu.get_flag('H') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x35
+    rom_file[0x0100] = 0x35
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x10)
     cpu.set_reg_16('HL', 0xC000)
@@ -1365,7 +1366,7 @@ def test_DEC_n():
     assert cpu.get_flag('H') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x35
+    rom_file[0x0100] = 0x35
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x00)
     cpu.set_reg_16('HL', 0xC000)
@@ -1376,7 +1377,7 @@ def test_DEC_n():
     assert cpu.get_flag('H') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x35
+    rom_file[0x0100] = 0x35
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC000, 0x01)
     cpu.set_reg_16('HL', 0xC000)
@@ -1391,7 +1392,7 @@ def test_DEC_n():
 def test_ADD_HL_n():
     # Test each source register
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x09
+    rom_file[0x0100] = 0x09
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1122)
     cpu.set_reg_16('BC', 0x3344)
@@ -1402,7 +1403,7 @@ def test_ADD_HL_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x19
+    rom_file[0x0100] = 0x19
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1122)
     cpu.set_reg_16('DE', 0x3344)
@@ -1413,7 +1414,7 @@ def test_ADD_HL_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x29
+    rom_file[0x0100] = 0x29
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1122)
     cpu.tick()
@@ -1423,7 +1424,7 @@ def test_ADD_HL_n():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x39
+    rom_file[0x0100] = 0x39
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1122)
     cpu.set_reg_16('SP', 0x3344)
@@ -1435,7 +1436,7 @@ def test_ADD_HL_n():
 
     #Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x09
+    rom_file[0x0100] = 0x09
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x0F00)
     cpu.set_reg_16('BC', 0x0100)
@@ -1447,7 +1448,7 @@ def test_ADD_HL_n():
 
     #Test full-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x09
+    rom_file[0x0100] = 0x09
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xF000)
     cpu.set_reg_16('BC', 0x1000)
@@ -1459,9 +1460,9 @@ def test_ADD_HL_n():
 
 def test_ADD_SP_n():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE8
-    rom_file[0x0001] = 0x44
-    rom_file[0x0002] = 0x33
+    rom_file[0x0100] = 0xE8
+    rom_file[0x0101] = 0x44
+    rom_file[0x0102] = 0x33
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0x1122)
     cpu.tick()
@@ -1473,9 +1474,9 @@ def test_ADD_SP_n():
 
     #Test half-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE8
-    rom_file[0x0001] = 0x00
-    rom_file[0x0002] = 0x01
+    rom_file[0x0100] = 0xE8
+    rom_file[0x0101] = 0x00
+    rom_file[0x0102] = 0x01
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0x0F00)
     cpu.tick()
@@ -1487,9 +1488,9 @@ def test_ADD_SP_n():
 
     #Test full-carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE8
-    rom_file[0x0001] = 0x00
-    rom_file[0x0002] = 0x10
+    rom_file[0x0100] = 0xE8
+    rom_file[0x0101] = 0x00
+    rom_file[0x0102] = 0x10
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('SP', 0xF000)
     cpu.tick()
@@ -1508,7 +1509,7 @@ def test_INC_nn():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_16(reg, 0x1111)
         cpu.tick()
@@ -1523,7 +1524,7 @@ def test_DEC_nn():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = op
+        rom_file[0x0100] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_16(reg, 0x1111)
         cpu.tick()
@@ -1545,8 +1546,8 @@ def test_SWAP_n():
     }
     for op, reg in ops.items():
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0xAB)
         cpu.tick()
@@ -1554,8 +1555,8 @@ def test_SWAP_n():
 
     # (HL)
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x36
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x36
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0xC001)
     cpu.mmu.set(0xC001, 0xAB)
@@ -1566,7 +1567,7 @@ def test_DAA():
     # Set/reset N flag to test post add/subtract DAA respectively
     # Addition
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x0C)
     cpu.set_flag('N', 0)
@@ -1577,7 +1578,7 @@ def test_DAA():
     assert cpu.get_flag('C') == 0
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xC0)
     cpu.set_flag('N', 0)
@@ -1588,7 +1589,7 @@ def test_DAA():
     assert cpu.get_flag('C') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x10)
     cpu.set_flag('N', 0)
@@ -1600,7 +1601,7 @@ def test_DAA():
     assert cpu.get_flag('C') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x11)
     cpu.set_flag('N', 0)
@@ -1613,7 +1614,7 @@ def test_DAA():
 
     # Subtraction
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xE0)
     cpu.set_flag('N', 1)
@@ -1625,7 +1626,7 @@ def test_DAA():
     assert cpu.get_flag('C') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x0E)
     cpu.set_flag('N', 1)
@@ -1638,7 +1639,7 @@ def test_DAA():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x27
+    rom_file[0x0100] = 0x27
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.set_flag('N', 0)
@@ -1651,11 +1652,11 @@ def test_DAA():
     # Test an actual addition
     rom_file = np.zeros(0x8000, dtype=np.uint8)
 
-    rom_file[0x0000] = 0x3E # LD A, 0x90
-    rom_file[0x0001] = 0x90
-    rom_file[0x0002] = 0xC6 # ADD A, 0x80
-    rom_file[0x0003] = 0x80
-    rom_file[0x0004] = 0x27 # DAA
+    rom_file[0x0100] = 0x3E # LD A, 0x90
+    rom_file[0x0101] = 0x90
+    rom_file[0x0102] = 0xC6 # ADD A, 0x80
+    rom_file[0x0103] = 0x80
+    rom_file[0x0104] = 0x27 # DAA
 
     cpu = CPU(MMU(rom_file))
 
@@ -1670,7 +1671,7 @@ def test_DAA():
 
 def test_CPL():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x2F
+    rom_file[0x0100] = 0x2F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0xCA)
     cpu.tick()
@@ -1680,7 +1681,7 @@ def test_CPL():
 
 def test_CCF():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x3F
+    rom_file[0x0100] = 0x3F
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
@@ -1689,7 +1690,7 @@ def test_CCF():
     assert cpu.get_flag('C') == 1
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x3F
+    rom_file[0x0100] = 0x3F
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
@@ -1699,7 +1700,7 @@ def test_CCF():
 
 def test_SCF():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x37
+    rom_file[0x0100] = 0x37
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
@@ -1710,17 +1711,17 @@ def test_SCF():
 def test_NOP():
     # This feels like a weird test
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x00
+    rom_file[0x0100] = 0x00
     cpu = CPU(MMU(rom_file))
     cpu.tick()
-    assert cpu.get_reg_16('PC') == 0x0001
+    assert cpu.get_reg_16('PC') == 0x0101
 
 # Rotates
 
 def test_RLCA():
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x07
+    rom_file[0x0100] = 0x07
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x96)
     cpu.tick()
@@ -1732,7 +1733,7 @@ def test_RLCA():
 
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x07
+    rom_file[0x0100] = 0x07
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x69)
     cpu.tick()
@@ -1744,7 +1745,7 @@ def test_RLCA():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x07
+    rom_file[0x0100] = 0x07
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.tick()
@@ -1757,7 +1758,7 @@ def test_RLCA():
 def test_RLA():
     # Test no carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x17
+    rom_file[0x0100] = 0x17
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x96)
     cpu.tick()
@@ -1769,7 +1770,7 @@ def test_RLA():
 
     # Test no carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x17
+    rom_file[0x0100] = 0x17
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x69)
     cpu.tick()
@@ -1781,7 +1782,7 @@ def test_RLA():
 
     # Test carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x17
+    rom_file[0x0100] = 0x17
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.set_reg_8('A', 0x96)
@@ -1794,7 +1795,7 @@ def test_RLA():
 
     # Test carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x17
+    rom_file[0x0100] = 0x17
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.set_reg_8('A', 0x69)
@@ -1807,7 +1808,7 @@ def test_RLA():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x17
+    rom_file[0x0100] = 0x17
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x80)
     cpu.tick()
@@ -1820,7 +1821,7 @@ def test_RLA():
 def test_RRCA():
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x0F
+    rom_file[0x0100] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x96)
     cpu.tick()
@@ -1832,7 +1833,7 @@ def test_RRCA():
 
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x0F
+    rom_file[0x0100] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x69)
     cpu.tick()
@@ -1844,7 +1845,7 @@ def test_RRCA():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x0F
+    rom_file[0x0100] = 0x0F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x00)
     cpu.tick()
@@ -1857,7 +1858,7 @@ def test_RRCA():
 def test_RRA():
     # Test no carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x1F
+    rom_file[0x0100] = 0x1F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x96)
     cpu.tick()
@@ -1869,7 +1870,7 @@ def test_RRA():
 
     # Test no carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x1F
+    rom_file[0x0100] = 0x1F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x69)
     cpu.tick()
@@ -1881,7 +1882,7 @@ def test_RRA():
 
     # Test carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x1F
+    rom_file[0x0100] = 0x1F
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.set_reg_8('A', 0x96)
@@ -1894,7 +1895,7 @@ def test_RRA():
 
     # Test carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x1F
+    rom_file[0x0100] = 0x1F
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.set_reg_8('A', 0x69)
@@ -1907,7 +1908,7 @@ def test_RRA():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x1F
+    rom_file[0x0100] = 0x1F
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_8('A', 0x01)
     cpu.tick()
@@ -1931,8 +1932,8 @@ def test_RLC_n():
     for op, reg in ops.items():
         # Test carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -1944,8 +1945,8 @@ def test_RLC_n():
 
         # Test no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -1957,8 +1958,8 @@ def test_RLC_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x00)
         cpu.tick()
@@ -1982,8 +1983,8 @@ def test_RL_n():
     for op, reg in ops.items():
         # Test no carry -> carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -1995,8 +1996,8 @@ def test_RL_n():
 
         # Test no carry -> no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2008,8 +2009,8 @@ def test_RL_n():
 
         # Test carry -> carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_flag('C', 1)
         cpu.set_reg_8(reg, 0x96)
@@ -2022,8 +2023,8 @@ def test_RL_n():
 
         # Test carry -> no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_flag('C', 1)
         cpu.set_reg_8(reg, 0x69)
@@ -2036,8 +2037,8 @@ def test_RL_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x80)
         cpu.tick()
@@ -2061,8 +2062,8 @@ def test_RRC_n():
     for op, reg in ops.items():
         # Test no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -2074,8 +2075,8 @@ def test_RRC_n():
 
         # Test carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2087,8 +2088,8 @@ def test_RRC_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x00)
         cpu.tick()
@@ -2112,8 +2113,8 @@ def test_RR_n():
     for op, reg in ops.items():
         # Test no carry -> no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -2125,8 +2126,8 @@ def test_RR_n():
 
         # Test no carry -> carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2138,8 +2139,8 @@ def test_RR_n():
 
         # Test carry -> no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_flag('C', 1)
         cpu.set_reg_8(reg, 0x96)
@@ -2152,8 +2153,8 @@ def test_RR_n():
 
         # Test carry -> carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_flag('C', 1)
         cpu.set_reg_8(reg, 0x69)
@@ -2166,8 +2167,8 @@ def test_RR_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x01)
         cpu.tick()
@@ -2180,8 +2181,8 @@ def test_RR_n():
 def test_RLC_HL():
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x06
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x06
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2194,8 +2195,8 @@ def test_RLC_HL():
 
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x06
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x06
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2208,8 +2209,8 @@ def test_RLC_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x06
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x06
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x00)
     cpu.set_reg_16('HL', 0xC123)
@@ -2223,8 +2224,8 @@ def test_RLC_HL():
 def test_RL_HL():
     # Test no carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x16
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x16
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2237,8 +2238,8 @@ def test_RL_HL():
 
     # Test no carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x16
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x16
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2251,8 +2252,8 @@ def test_RL_HL():
 
     # Test carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x16
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x16
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2266,8 +2267,8 @@ def test_RL_HL():
 
     # Test carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x16
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x16
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2281,8 +2282,8 @@ def test_RL_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x16
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x16
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x80)
     cpu.set_reg_16('HL', 0xC123)
@@ -2296,8 +2297,8 @@ def test_RL_HL():
 def test_RRC_HL():
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x0E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x0E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2310,8 +2311,8 @@ def test_RRC_HL():
 
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x0E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x0E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2324,8 +2325,8 @@ def test_RRC_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x0E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x0E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x00)
     cpu.set_reg_16('HL', 0xC123)
@@ -2339,8 +2340,8 @@ def test_RRC_HL():
 def test_RR_HL():
     # Test no carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x1E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x1E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2353,8 +2354,8 @@ def test_RR_HL():
 
     # Test no carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x1E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x1E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2367,8 +2368,8 @@ def test_RR_HL():
 
     # Test carry -> no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x1E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x1E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_flag('C', 1)
@@ -2382,8 +2383,8 @@ def test_RR_HL():
 
     # Test carry -> carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x1E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x1E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_flag('C', 1)
@@ -2397,8 +2398,8 @@ def test_RR_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x1E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x1E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x01)
     cpu.set_reg_16('HL', 0xC123)
@@ -2425,8 +2426,8 @@ def test_SLA_n():
     for op, reg in ops.items():
         # Test carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -2438,8 +2439,8 @@ def test_SLA_n():
 
         # Test no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2451,8 +2452,8 @@ def test_SLA_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x80)
         cpu.tick()
@@ -2476,8 +2477,8 @@ def test_SRA_n():
     for op, reg in ops.items():
         # Test no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -2489,8 +2490,8 @@ def test_SRA_n():
 
         # Test carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2502,8 +2503,8 @@ def test_SRA_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x01)
         cpu.tick()
@@ -2527,8 +2528,8 @@ def test_SRL_n():
     for op, reg in ops.items():
         # Test carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x96)
         cpu.tick()
@@ -2540,8 +2541,8 @@ def test_SRL_n():
 
         # Test no carry
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x69)
         cpu.tick()
@@ -2553,8 +2554,8 @@ def test_SRL_n():
 
         # Test zero
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = op
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = op
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_8(reg, 0x01)
         cpu.tick()
@@ -2567,8 +2568,8 @@ def test_SRL_n():
 def test_SLAs_HL():
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x26
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x26
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2581,8 +2582,8 @@ def test_SLAs_HL():
 
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x26
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x26
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2595,8 +2596,8 @@ def test_SLAs_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x26
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x26
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x80)
     cpu.set_reg_16('HL', 0xC123)
@@ -2610,8 +2611,8 @@ def test_SLAs_HL():
 def test_SRA_HL():
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x2E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x2E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2624,8 +2625,8 @@ def test_SRA_HL():
 
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x2E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x2E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2638,8 +2639,8 @@ def test_SRA_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x2E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x2E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x01)
     cpu.set_reg_16('HL', 0xC123)
@@ -2653,8 +2654,8 @@ def test_SRA_HL():
 def test_SRL_HL():
     # Test no carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x3E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x3E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x96)
     cpu.set_reg_16('HL', 0xC123)
@@ -2667,8 +2668,8 @@ def test_SRL_HL():
 
     # Test carry
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x3E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x3E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x69)
     cpu.set_reg_16('HL', 0xC123)
@@ -2681,8 +2682,8 @@ def test_SRL_HL():
 
     # Test zero
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCB
-    rom_file[0x0001] = 0x3E
+    rom_file[0x0100] = 0xCB
+    rom_file[0x0101] = 0x3E
     cpu = CPU(MMU(rom_file))
     cpu.mmu.set(0xC123, 0x01)
     cpu.set_reg_16('HL', 0xC123)
@@ -2710,8 +2711,8 @@ def test_BIT():
         for i in range(0, 7):
             # Test for positive bit
             rom_file = np.zeros(0x8000, dtype=np.uint8)
-            rom_file[0x0000] = 0xCB
-            rom_file[0x0001] = op + (i * 0x08)
+            rom_file[0x0100] = 0xCB
+            rom_file[0x0101] = op + (i * 0x08)
             cpu = CPU(MMU(rom_file))
             cpu.set_reg_8(reg, 0x01 << i)
             cpu.tick()
@@ -2721,8 +2722,8 @@ def test_BIT():
 
             # Test for negative bit
             rom_file = np.zeros(0x8000, dtype=np.uint8)
-            rom_file[0x0000] = 0xCB
-            rom_file[0x0001] = op + (i * 0x08)
+            rom_file[0x0100] = 0xCB
+            rom_file[0x0101] = op + (i * 0x08)
             cpu = CPU(MMU(rom_file))
             cpu.set_reg_8(reg, (0x01 << i) ^ 0xFF)
             cpu.tick()
@@ -2734,8 +2735,8 @@ def test_BIT():
         # (HL)
         # Test for positive bit
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = 0x46 + (i * 0x08)
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = 0x46 + (i * 0x08)
         cpu = CPU(MMU(rom_file))
         cpu.mmu.set(0xC123, 0x01 << i)
         cpu.set_reg_16('HL', 0xC123)
@@ -2746,8 +2747,8 @@ def test_BIT():
 
         # Test for negative bit
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = 0x46 + (i * 0x08)
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = 0x46 + (i * 0x08)
         cpu = CPU(MMU(rom_file))
         cpu.mmu.set(0xC123, (0x01 << i) ^ 0xFF)
         cpu.set_reg_16('HL', 0xC123)
@@ -2771,8 +2772,8 @@ def test_SET():
         for i in range(0, 7):
             # Test for positive bit
             rom_file = np.zeros(0x8000, dtype=np.uint8)
-            rom_file[0x0000] = 0xCB
-            rom_file[0x0001] = op + (i * 0x08)
+            rom_file[0x0100] = 0xCB
+            rom_file[0x0101] = op + (i * 0x08)
             cpu = CPU(MMU(rom_file))
             cpu.tick()
             assert cpu.get_reg_8(reg) == 0x01 << i
@@ -2781,8 +2782,8 @@ def test_SET():
         # (HL)
         # Test for positive bit
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = 0xC6 + (i * 0x08)
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = 0xC6 + (i * 0x08)
         cpu = CPU(MMU(rom_file))
         cpu.set_reg_16('HL', 0xC123)
         cpu.tick()
@@ -2803,8 +2804,8 @@ def test_RES():
         for i in range(0, 7):
             # Test for positive bit
             rom_file = np.zeros(0x8000, dtype=np.uint8)
-            rom_file[0x0000] = 0xCB
-            rom_file[0x0001] = op + (i * 0x08)
+            rom_file[0x0100] = 0xCB
+            rom_file[0x0101] = op + (i * 0x08)
             cpu = CPU(MMU(rom_file))
             cpu.set_reg_8(reg, 0xFF)
             cpu.tick()
@@ -2814,8 +2815,8 @@ def test_RES():
         # (HL)
         # Test for positive bit
         rom_file = np.zeros(0x8000, dtype=np.uint8)
-        rom_file[0x0000] = 0xCB
-        rom_file[0x0001] = 0x86 + (i * 0x08)
+        rom_file[0x0100] = 0xCB
+        rom_file[0x0101] = 0x86 + (i * 0x08)
         cpu = CPU(MMU(rom_file))
         cpu.mmu.set(0xC123, 0xFF)
         cpu.set_reg_16('HL', 0xC123)
@@ -2826,9 +2827,9 @@ def test_RES():
 
 def test_JP_nn():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC3
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xC3
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.tick()
     assert cpu.pc == 0x1234
@@ -2836,37 +2837,37 @@ def test_JP_nn():
 def test_JP_cc_nn():
     # NZ
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC2
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xC2
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
     assert cpu.pc == 0x1234
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC2
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xC2
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     # Z
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCA
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xCA
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCA
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xCA
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
@@ -2874,37 +2875,37 @@ def test_JP_cc_nn():
 
     # NC
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD2
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xD2
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
     assert cpu.pc == 0x1234
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD2
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xD2
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     # C
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDA
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xDA
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDA
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xDA
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
@@ -2912,7 +2913,7 @@ def test_JP_cc_nn():
 
 def test_JP_HL():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xE9
+    rom_file[0x0100] = 0xE9
     cpu = CPU(MMU(rom_file))
     cpu.set_reg_16('HL', 0x1234)
     cpu.tick()
@@ -2930,164 +2931,164 @@ def test_JR_n():
 def test_JR_cc_n():
     # NZ
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x20
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x20
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
-    assert cpu.pc == 0x0035
+    assert cpu.pc == 0x0135
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x20
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x20
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0102
 
     # Z
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x28
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x28
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0102
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x28
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x28
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
-    assert cpu.pc == 0x0035
+    assert cpu.pc == 0x0135
 
     # NC
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x30
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x30
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
-    assert cpu.pc == 0x0035
+    assert cpu.pc == 0x0135
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x30
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x30
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0102
 
     # C
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x38
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x38
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0102
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0x38
-    rom_file[0x0001] = 0x34
+    rom_file[0x0100] = 0x38
+    rom_file[0x0101] = 0x34
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
-    assert cpu.pc == 0x0035
+    assert cpu.pc == 0x0135
 
 # Calls
 
 def test_CALL_nn():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCD
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xCD
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.tick()
     assert cpu.pc == 0x1234
-    assert cpu.pop_stack() == 0x0003
+    assert cpu.pop_stack() == 0x0103
 
 def test_CALL_cc_nn():
     # NZ
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC4
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xC4
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
     assert cpu.pc == 0x1234
-    assert cpu.pop_stack() == 0x0003
+    assert cpu.pop_stack() == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC4
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xC4
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     # Z
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCC
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xCC
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xCC
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xCC
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('Z', 1)
     cpu.tick()
     assert cpu.pc == 0x1234
-    assert cpu.pop_stack() == 0x0003
+    assert cpu.pop_stack() == 0x0103
 
     # NC
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD4
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xD4
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
     assert cpu.pc == 0x1234
-    assert cpu.pop_stack() == 0x0003
+    assert cpu.pop_stack() == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD4
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xD4
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     # C
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDC
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xDC
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0103
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xDC
-    rom_file[0x0001] = 0x34
-    rom_file[0x0002] = 0x12
+    rom_file[0x0100] = 0xDC
+    rom_file[0x0101] = 0x34
+    rom_file[0x0102] = 0x12
     cpu = CPU(MMU(rom_file))
     cpu.set_flag('C', 1)
     cpu.tick()
     assert cpu.pc == 0x1234
-    assert cpu.pop_stack() == 0x0003
+    assert cpu.pop_stack() == 0x0103
 
 # Restarts
 
@@ -3160,7 +3161,7 @@ def test_RST_n():
 
 def test_RET():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC0
+    rom_file[0x0100] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.tick()
@@ -3169,7 +3170,7 @@ def test_RET():
 def test_RET_cc():
     # NZ
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC0
+    rom_file[0x0100] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('Z', 0)
@@ -3177,24 +3178,24 @@ def test_RET_cc():
     assert cpu.pc == 0x1234
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC0
+    rom_file[0x0100] = 0xC0
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('Z', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0101
 
     # Z
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC8
+    rom_file[0x0100] = 0xC8
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('Z', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0101
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xC8
+    rom_file[0x0100] = 0xC8
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('Z', 1)
@@ -3203,7 +3204,7 @@ def test_RET_cc():
 
     # NC
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD0
+    rom_file[0x0100] = 0xD0
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('C', 0)
@@ -3211,24 +3212,24 @@ def test_RET_cc():
     assert cpu.pc == 0x1234
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD0
+    rom_file[0x0100] = 0xD0
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('C', 1)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0101
 
     # C
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD8
+    rom_file[0x0100] = 0xD8
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('C', 0)
     cpu.tick()
-    assert cpu.pc == 0x0001
+    assert cpu.pc == 0x0101
 
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD8
+    rom_file[0x0100] = 0xD8
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.set_flag('C', 1)
@@ -3237,7 +3238,7 @@ def test_RET_cc():
 
 def test_RETI():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
-    rom_file[0x0000] = 0xD9
+    rom_file[0x0100] = 0xD9
     cpu = CPU(MMU(rom_file))
     cpu.push_stack(0x1234)
     cpu.tick()
