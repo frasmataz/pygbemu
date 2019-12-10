@@ -2926,3 +2926,72 @@ def test_JR_n():
     cpu.pc = 0x0012
     cpu.tick()
     assert cpu.pc == 0x0047
+
+def test_JR_cc_n():
+    # NZ
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x20
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0035
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x20
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # Z
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x28
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x28
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0035
+
+    # NC
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x30
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0035
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x30
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # C
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x38
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0x38
+    rom_file[0x0001] = 0x34
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0035

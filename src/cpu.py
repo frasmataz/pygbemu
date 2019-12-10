@@ -641,6 +641,14 @@ class CPU:
             self.JP_HL()
         elif (op == 0x18):
             self.JR_n()
+        elif (op == 0x20):
+            self.JR_NZ()
+        elif (op == 0x28):
+            self.JR_Z()
+        elif (op == 0x30):
+            self.JR_NC()
+        elif (op == 0x38):
+            self.JR_C()
 
 
         # Extended operations:
@@ -1542,3 +1550,19 @@ class CPU:
 
     def JR_n(self):
         self.pc += self.fetch_8()
+
+    def JR_NZ(self):
+        if (self.get_flag('Z') == 0):
+            self.pc += self.fetch_8()
+
+    def JR_Z(self):
+        if (self.get_flag('Z') == 1):
+            self.pc += self.fetch_8()
+
+    def JR_NC(self):
+        if (self.get_flag('C') == 0):
+            self.pc += self.fetch_8()
+
+    def JR_C(self):
+        if (self.get_flag('C') == 1):
+            self.pc += self.fetch_8()
