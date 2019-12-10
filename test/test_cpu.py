@@ -3088,3 +3088,158 @@ def test_CALL_cc_nn():
     cpu.tick()
     assert cpu.pc == 0x1234
     assert cpu.pop_stack() == 0x0003
+
+# Restarts
+
+def test_RST_n():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xC7
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0000
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xCF
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0008
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xD7
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0010
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xDF
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0018
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xE7
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0020
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xEF
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0028
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xF7
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0030
+    assert cpu.pop_stack() == 0x0151
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0150] = 0xFF
+    cpu = CPU(MMU(rom_file))
+    cpu.pc = 0x0150
+    cpu.tick()
+    assert cpu.pc == 0x0038
+    assert cpu.pop_stack() == 0x0151
+
+# Returns
+
+def test_RET():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC0
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+def test_RET_cc():
+    # NZ
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC0
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC0
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # Z
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC8
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC8
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    # NC
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD0
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD0
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # C
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD8
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD8
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+def test_RETI():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD9
+    cpu = CPU(MMU(rom_file))
+    cpu.push_stack(0x1234)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+    # TODO: TEST FOR INTERRUPT ENABLE

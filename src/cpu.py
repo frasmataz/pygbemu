@@ -662,6 +662,37 @@ class CPU:
         elif (op == 0xDC):
             self.CALL_C()
 
+        # Restarts
+        elif (op == 0xC7):
+            self.RST(0x00)
+        elif (op == 0xCF):
+            self.RST(0x08)
+        elif (op == 0xD7):
+            self.RST(0x10)
+        elif (op == 0xDF):
+            self.RST(0x18)
+        elif (op == 0xE7):
+            self.RST(0x20)
+        elif (op == 0xEF):
+            self.RST(0x28)
+        elif (op == 0xF7):
+            self.RST(0x30)
+        elif (op == 0xFF):
+            self.RST(0x38)
+
+        # Returns
+        elif (op == 0xC9):
+            self.RET()
+        elif (op == 0xC0):
+            self.RET_NZ()
+        elif (op == 0xC8):
+            self.RET_Z()
+        elif (op == 0xD0):
+            self.RET_NC()
+        elif (op == 0xD8):
+            self.RET_C()
+        elif (op == 0xD9):
+            self.RETI()
 
         # Extended operations:
         elif (op == 0xCB):
@@ -1600,3 +1631,34 @@ class CPU:
     def CALL_C(self):
         if (self.get_flag('C') == 1):
             self.CALL_nn()
+
+    # Restarts
+
+    def RST(self, n):
+        self.push_stack(self.pc)
+        self.pc = n
+
+    # Returns
+
+    def RET(self):
+        self.pc = self.pop_stack()
+
+    def RET_NZ(self):
+        if (self.get_flag('Z') == 0):
+            self.RET()
+
+    def RET_Z(self):
+        if (self.get_flag('Z') == 1):
+            self.RET()
+
+    def RET_NC(self):
+        if (self.get_flag('C') == 0):
+            self.RET()
+
+    def RET_C(self):
+        if (self.get_flag('C') == 1):
+            self.RET()
+
+    def RETI(self):
+        self.EI()
+        self.RET()
