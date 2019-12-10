@@ -2822,11 +2822,90 @@ def test_RES():
         cpu.tick()
         assert cpu.mmu.get(cpu.get_reg_16('HL')) == (0x01 << i) ^ 0xFF
 
+# Jumps
+
 def test_JP_nn():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
     rom_file[0x0000] = 0xC3
     rom_file[0x0001] = 0x34
     rom_file[0x0002] = 0x12
     cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+def test_JP_cc_nn():
+    # NZ
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC2
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC2
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # Z
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCA
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCA
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('Z', 1)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    # NC
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD2
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x1234
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xD2
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    # C
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xDA
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 0)
+    cpu.tick()
+    assert cpu.pc == 0x0001
+
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xDA
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.set_flag('C', 1)
     cpu.tick()
     assert cpu.pc == 0x1234

@@ -629,6 +629,14 @@ class CPU:
         #Jumps
         elif (op == 0xC3):
             self.JP_nn()
+        elif (op == 0xC2):
+            self.JP_NZ()
+        elif (op == 0xCA):
+            self.JP_Z()
+        elif (op == 0xD2):
+            self.JP_NC()
+        elif (op == 0xDA):
+            self.JP_C()
 
 
         # Extended operations:
@@ -1508,3 +1516,19 @@ class CPU:
 
     def JP_nn(self):
         self.pc = self.fetch_16()
+
+    def JP_NZ(self):
+        if (self.get_flag('Z') == 0):
+            self.pc = self.fetch_16()
+
+    def JP_Z(self):
+        if (self.get_flag('Z') == 1):
+            self.pc = self.fetch_16()
+
+    def JP_NC(self):
+        if (self.get_flag('C') == 0):
+            self.pc = self.fetch_16()
+
+    def JP_C(self):
+        if (self.get_flag('C') == 1):
+            self.pc = self.fetch_16()
