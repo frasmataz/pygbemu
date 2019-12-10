@@ -21,7 +21,7 @@ def test_registers():
         assert cpu.get_reg_8(_8regs[0]) == 0xAA
         assert cpu.get_reg_8(_8regs[1]) == 0x55
 
-    assert cpu.sp == 0x0000
+    assert cpu.sp == 0xFFFE
     assert cpu.pc == 0x0000
 
 def test_flags():
@@ -2995,3 +2995,15 @@ def test_JR_cc_n():
     cpu.set_flag('C', 1)
     cpu.tick()
     assert cpu.pc == 0x0035
+
+# Calls
+
+def test_CALL_nn():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xCD
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    assert cpu.pc == 0x1234
+    assert cpu.pop_stack() == 0x0003

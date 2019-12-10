@@ -13,7 +13,7 @@ class CPU:
             'L': 0x00
         }
 
-        self.sp = 0x0000
+        self.sp = 0xFFFE
         self.pc = 0x0000
 
         self.mmu = mmu
@@ -626,7 +626,7 @@ class CPU:
         elif (op == 0xFB):
             self.EI()
 
-        #Jumps
+        # Jumps
         elif (op == 0xC3):
             self.JP_nn()
         elif (op == 0xC2):
@@ -649,6 +649,10 @@ class CPU:
             self.JR_NC()
         elif (op == 0x38):
             self.JR_C()
+
+        # Calls
+        elif (op == 0xCD):
+            self.CALL_nn()
 
 
         # Extended operations:
@@ -1566,3 +1570,7 @@ class CPU:
     def JR_C(self):
         if (self.get_flag('C') == 1):
             self.pc += self.fetch_8()
+
+    def CALL_nn(self):
+        self.push_stack(self.pc+2)
+        self.pc = self.fetch_16()
