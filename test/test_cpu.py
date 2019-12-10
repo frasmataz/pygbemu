@@ -2784,7 +2784,40 @@ def test_SET():
         rom_file[0x0000] = 0xCB
         rom_file[0x0001] = 0xC6 + (i * 0x08)
         cpu = CPU(MMU(rom_file))
-        cpu.mmu.set(0xC123, 0x01 << i)
         cpu.set_reg_16('HL', 0xC123)
         cpu.tick()
         assert cpu.mmu.get(cpu.get_reg_16('HL')) == 0x01 << i
+
+def test_RES():
+    ops = {
+        0x87: 'A',
+        0x80: 'B',
+        0x81: 'C',
+        0x82: 'D',
+        0x83: 'E',
+        0x84: 'H',
+        0x85: 'L'
+    }
+
+    for op, reg in ops.items():
+        for i in range(0, 7):
+            # Test for positive bit
+            rom_file = np.zeros(0x8000, dtype=np.uint8)
+            rom_file[0x0000] = 0xCB
+            rom_file[0x0001] = op + (i * 0x08)
+            cpu = CPU(MMU(rom_file))
+            cpu.set_reg_8(reg, 0xFF)
+            cpu.tick()
+            assert cpu.get_reg_8(reg) == (0x01 << i) ^ 0xFF
+
+    for i in range(0, 7):
+        # (HL)
+        # Test for positive bit
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = 0x86 + (i * 0x08)
+        cpu = CPU(MMU(rom_file))
+        cpu.mmu.set(0xC123, 0xFF)
+        cpu.set_reg_16('HL', 0xC123)
+        cpu.tick()
+        assert cpu.mmu.get(cpu.get_reg_16('HL')) == (0x01 << i) ^ 0xFF

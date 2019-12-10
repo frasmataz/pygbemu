@@ -772,6 +772,8 @@ class CPU:
                 self.BIT(op2)
             elif (op2 >= 0xC0 and op2 <= 0xFF):
                 self.SET(op2)
+            elif (op2 >= 0x80 and op2 <= 0xBF):
+                self.RES(op2)
             else:
                 raise NotImplementedError('Unknown opcode: 0xCB, ' + hex(op2))
 
@@ -1467,3 +1469,33 @@ class CPU:
             self.mmu.set(self.get_reg_16(reg), self.mmu.get(self.get_reg_16(reg)) | (0x01 << bit))
         else:
             self.set_reg_8(reg, self.get_reg_8(reg) | (0x01 << bit))
+        self.set_flag('H', 1)
+
+    def RES(self, opcode):
+        opcode -= 0x80
+        reg_index = opcode & 0b00000111
+
+        reg = ''
+        if (reg_index == 0):
+            reg = 'B'
+        elif (reg_index == 1):
+            reg = 'C'
+        elif (reg_index == 2):
+            reg = 'D'
+        elif (reg_index == 3):
+            reg = 'E'
+        elif (reg_index == 4):
+            reg = 'H'
+        elif (reg_index == 5):
+            reg = 'L'
+        elif (reg_index == 6):
+            reg = 'HL'
+        elif (reg_index == 7):
+            reg = 'A'
+
+        bit = int((opcode & 0b11111000) / 0x08)
+
+        if (reg == 'HL'):
+            self.mmu.set(self.get_reg_16(reg), self.mmu.get(self.get_reg_16(reg)) & ((0x01 << bit)^ 0xFF))
+        else:
+            self.set_reg_8(reg, self.get_reg_8(reg) & ((0x01 << bit) ^ 0xFF))
