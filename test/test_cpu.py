@@ -2909,3 +2909,11 @@ def test_JP_cc_nn():
     cpu.set_flag('C', 1)
     cpu.tick()
     assert cpu.pc == 0x1234
+
+def test_JP_HL():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xE9
+    cpu = CPU(MMU(rom_file))
+    cpu.set_reg_16('HL', 0x1234)
+    cpu.tick()
+    assert cpu.pc == 0x1234
