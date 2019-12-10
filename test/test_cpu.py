@@ -2755,3 +2755,36 @@ def test_BIT():
         assert cpu.get_flag('Z') == 1
         assert cpu.get_flag('N') == 0
         assert cpu.get_flag('H') == 1
+
+def test_SET():
+    ops = {
+        0xC7: 'A',
+        0xC0: 'B',
+        0xC1: 'C',
+        0xC2: 'D',
+        0xC3: 'E',
+        0xC4: 'H',
+        0xC5: 'L'
+    }
+
+    for op, reg in ops.items():
+        for i in range(0, 7):
+            # Test for positive bit
+            rom_file = np.zeros(0x8000, dtype=np.uint8)
+            rom_file[0x0000] = 0xCB
+            rom_file[0x0001] = op + (i * 0x08)
+            cpu = CPU(MMU(rom_file))
+            cpu.tick()
+            assert cpu.get_reg_8(reg) == 0x01 << i
+
+    for i in range(0, 7):
+        # (HL)
+        # Test for positive bit
+        rom_file = np.zeros(0x8000, dtype=np.uint8)
+        rom_file[0x0000] = 0xCB
+        rom_file[0x0001] = 0xC6 + (i * 0x08)
+        cpu = CPU(MMU(rom_file))
+        cpu.mmu.set(0xC123, 0x01 << i)
+        cpu.set_reg_16('HL', 0xC123)
+        cpu.tick()
+        assert cpu.mmu.get(cpu.get_reg_16('HL')) == 0x01 << i
