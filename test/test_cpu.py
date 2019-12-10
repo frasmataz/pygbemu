@@ -2821,3 +2821,12 @@ def test_RES():
         cpu.set_reg_16('HL', 0xC123)
         cpu.tick()
         assert cpu.mmu.get(cpu.get_reg_16('HL')) == (0x01 << i) ^ 0xFF
+
+def test_JP_nn():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0000] = 0xC3
+    rom_file[0x0001] = 0x34
+    rom_file[0x0002] = 0x12
+    cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    assert cpu.pc == 0x1234

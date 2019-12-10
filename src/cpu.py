@@ -626,6 +626,10 @@ class CPU:
         elif (op == 0xFB):
             self.EI()
 
+        #Jumps
+        elif (op == 0xC3):
+            self.JP_nn()
+
 
         # Extended operations:
         elif (op == 0xCB):
@@ -1499,3 +1503,8 @@ class CPU:
             self.mmu.set(self.get_reg_16(reg), self.mmu.get(self.get_reg_16(reg)) & ((0x01 << bit)^ 0xFF))
         else:
             self.set_reg_8(reg, self.get_reg_8(reg) & ((0x01 << bit) ^ 0xFF))
+
+    # Jumps
+
+    def JP_nn(self):
+        self.pc = self.fetch_16()
