@@ -653,6 +653,14 @@ class CPU:
         # Calls
         elif (op == 0xCD):
             self.CALL_nn()
+        elif (op == 0xC4):
+            self.CALL_NZ()
+        elif (op == 0xCC):
+            self.CALL_Z()
+        elif (op == 0xD4):
+            self.CALL_NC()
+        elif (op == 0xDC):
+            self.CALL_C()
 
 
         # Extended operations:
@@ -1571,6 +1579,24 @@ class CPU:
         if (self.get_flag('C') == 1):
             self.pc += self.fetch_8()
 
+    # Calls
+
     def CALL_nn(self):
         self.push_stack(self.pc+2)
         self.pc = self.fetch_16()
+
+    def CALL_NZ(self):
+        if (self.get_flag('Z') == 0):
+            self.CALL_nn()
+
+    def CALL_Z(self):
+        if (self.get_flag('Z') == 1):
+            self.CALL_nn()
+
+    def CALL_NC(self):
+        if (self.get_flag('C') == 0):
+            self.CALL_nn()
+
+    def CALL_C(self):
+        if (self.get_flag('C') == 1):
+            self.CALL_nn()
