@@ -3244,3 +3244,28 @@ def test_RETI():
     cpu.tick()
     assert cpu.pc == 0x1234
     # TODO: TEST FOR INTERRUPT ENABLE
+
+def test_fibonacci():
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0x16 # LD D=13  - Set counter to 13 loops
+    rom_file[0x0101] = 0x0D
+    rom_file[0x0102] = 0x06 # LD B=0   - Set n1 to 0
+    rom_file[0x0103] = 0x00
+    rom_file[0x0104] = 0x0E # LD C=1   - Set n2 to 1
+    rom_file[0x0105] = 0x01
+    rom_file[0x0106] = 0x78 # LD B->A  - Load n1 to A  <---------
+    rom_file[0x0107] = 0x81 # ADD C->A - Add n2 to A            |
+    rom_file[0x0108] = 0x48 # LD B->C  - Move n1 over n2        |
+    rom_file[0x0109] = 0x47 # LD A->B  - Store result as n1     |
+    rom_file[0x010A] = 0x15 # DEC D    - Decrement counter      |
+    rom_file[0x010B] = 0xC2 # JP NZ    - If counter != 0..      |
+    rom_file[0x010C] = 0x06 #          - ..loop back to 0x0106 --
+    rom_file[0x010D] = 0x01
+    rom_file[0x010E] = 0x76 #          - ..else, halt
+
+    cpu = CPU(MMU(rom_file))
+
+    while cpu.pc != 0x010E:
+        cpu.tick()
+
+    assert cpu.get_reg_8('B') == 233    # F13 = 233
