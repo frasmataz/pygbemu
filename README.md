@@ -19,11 +19,11 @@ pip install -r requirements.txt
 ## Running
 
 ```
-python src <GB_ROM_FILE>
+./run.sh
 ```
 
 ## Testing
 
 ```
-pytest
+./test.sh
 ```
