@@ -1,4 +1,4 @@
-from src.events import Events
+from events import Events
 import pygame
 import numpy as np
 

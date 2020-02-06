@@ -1,5 +1,5 @@
 import numpy as np
-from src.exceptions.memory_access_error import MemoryAccessError
+from exceptions.memory_access_error import MemoryAccessError
 
 class MMU:
 

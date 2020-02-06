@@ -1,6 +1,6 @@
 import numpy as np
-from src.mmu import MMU
-from src.cpu import CPU
+from mmu import MMU
+from cpu import CPU
 
 def test_registers():
     cpu = CPU(MMU(np.zeros(0x8000, dtype=np.uint8)))

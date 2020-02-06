@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from src.mmu import MMU
-from src.exceptions.memory_access_error import MemoryAccessError
+from mmu import MMU
+from exceptions.memory_access_error import MemoryAccessError
 
 def test_read_range():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
