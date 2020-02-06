@@ -1,2 +1,2 @@
-cd src
-python -m pytest ../test
+export PYTHONPATH=src
+pytest
