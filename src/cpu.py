@@ -15,6 +15,7 @@ class CPU:
 
         self.sp = 0xFFFE
         self.pc = 0x0100
+        self.interrupt_master_enable = False
 
         self.mmu = mmu
 
@@ -143,7 +144,10 @@ class CPU:
 
     def tick(self):
         op = self.fetch_8()
+        self.execute(op)
+        self.handle_interrupts()
 
+    def execute(self, op):
         ## 8-bit loads
         # LD nn, n
         if (op == 0x06):
@@ -848,7 +852,37 @@ class CPU:
         else:
             raise NotImplementedError('Unknown opcode: ' + hex(op))
 
-
+    def handle_interrupts(self):
+        if self.interrupt_master_enable:
+            interrupt_flags = self.mmu.get(0xFF0F)
+            interrupt_enable = self.mmu.get(0xFFFF)
+            if interrupt_flags & interrupt_enable:
+                if (interrupt_flags & 1) & (interrupt_enable & 1):
+                    #V-Blank
+                    self.push_stack(self.pc)
+                    self.pc = 0x0040
+                    self.mmu.set(0xFF0F, interrupt_flags & ~1)
+                elif (interrupt_flags & 2) & (interrupt_enable & 2):
+                    #LCDC status
+                    self.push_stack(self.pc)
+                    self.pc = 0x0048
+                    self.mmu.set(0xFF0F, interrupt_flags & ~2)
+                elif (interrupt_flags & 4) & (interrupt_enable & 4):
+                    #Timer overflow
+                    self.push_stack(self.pc)
+                    self.pc = 0x0050
+                    self.mmu.set(0xFF0F, interrupt_flags & ~4)
+                elif (interrupt_flags & 8) & (interrupt_enable & 8):
+                    #Serial transfer complete
+                    self.push_stack(self.pc)
+                    self.pc = 0x0058
+                    self.mmu.set(0xFF0F, interrupt_flags & ~8)
+                elif (interrupt_flags & 16) & (interrupt_enable & 16):
+                    #P10-P13 input low
+                    self.push_stack(self.pc)
+                    self.pc = 0x0060
+                    self.mmu.set(0xFF0F, interrupt_flags & ~16)
+                self.interrupt_master_enable = False
 
     ## OPCODE FUNCTIONS
     # 8-bit loads
@@ -1230,12 +1264,10 @@ class CPU:
         pass
 
     def DI(self):
-        print('DI called, not implemented, passing')
-        pass
+        self.interrupt_master_enable = False
 
     def EI(self):
-        print('EI called, not implemented, passing')
-        pass
+        self.interrupt_master_enable = True
 
     # Rotates
 

@@ -3243,7 +3243,7 @@ def test_RETI():
     cpu.push_stack(0x1234)
     cpu.tick()
     assert cpu.pc == 0x1234
-    # TODO: TEST FOR INTERRUPT ENABLE
+    assert cpu.interrupt_master_enable == True
 
 def test_fibonacci():
     rom_file = np.zeros(0x8000, dtype=np.uint8)
@@ -3269,3 +3269,125 @@ def test_fibonacci():
         cpu.tick()
 
     assert cpu.get_reg_8('B') == 233    # F13 = 233
+
+def test_interrupts():
+    #V-Blank
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x01)
+    cpu.mmu.set(0xFFFF, 0x01)
+    cpu.tick()
+    assert cpu.pc == 0x0040
+    assert cpu.interrupt_master_enable == False
+    assert cpu.pop_stack() == 0x0101
+
+    #LDCD status
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x02)
+    cpu.mmu.set(0xFFFF, 0x02)
+    cpu.tick()
+    assert cpu.pc == 0x0048
+    assert cpu.interrupt_master_enable == False
+    assert cpu.pop_stack() == 0x0101
+
+    #Timer overflow
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x04)
+    cpu.mmu.set(0xFFFF, 0x04)
+    cpu.tick()
+    assert cpu.pc == 0x0050
+    assert cpu.interrupt_master_enable == False
+    assert cpu.pop_stack() == 0x0101
+
+    #Serial transfer complete
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x08)
+    cpu.mmu.set(0xFFFF, 0x08)
+    cpu.tick()
+    assert cpu.pc == 0x0058
+    assert cpu.interrupt_master_enable == False
+    assert cpu.pop_stack() == 0x0101
+
+    #P10-P13 input low
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x10)
+    cpu.mmu.set(0xFFFF, 0x10)
+    cpu.tick()
+    assert cpu.pc == 0x0060
+    assert cpu.interrupt_master_enable == False
+    assert cpu.pop_stack() == 0x0101
+
+    #Interrupt master disable
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    rom_file[0x0101] = 0xF3
+    cpu = CPU(MMU(rom_file))
+    cpu.tick()
+    cpu.mmu.set(0xFF0F, 0x01)
+    cpu.mmu.set(0xFFFF, 0x01)
+    cpu.tick()
+    assert cpu.pc == 0x0102
+    assert cpu.interrupt_master_enable == False
+
+    #Flag disabled
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x00)
+    cpu.mmu.set(0xFFFF, 0x01)
+    cpu.tick()
+    assert cpu.pc == 0x0101
+    assert cpu.interrupt_master_enable == True
+
+    #Enable disabled
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x01)
+    cpu.mmu.set(0xFFFF, 0x00)
+    cpu.tick()
+    assert cpu.pc == 0x0101
+    assert cpu.interrupt_master_enable == True
+
+    #Test priorities
+    rom_file = np.zeros(0x8000, dtype=np.uint8)
+    rom_file[0x0100] = 0xFB
+    rom_file[0x0101] = 0xFB
+    rom_file[0x0102] = 0xFB
+    rom_file[0x0103] = 0xFB
+    rom_file[0x0104] = 0xFB
+    cpu = CPU(MMU(rom_file))
+    cpu.mmu.set(0xFF0F, 0x1F)
+    cpu.mmu.set(0xFFFF, 0x1F)
+    cpu.tick()
+    assert cpu.pc == 0x0040
+    assert cpu.pop_stack() == 0x0101
+
+    cpu.pc = 0x101
+    cpu.tick()
+    assert cpu.pc == 0x0048
+    assert cpu.pop_stack() == 0x0102
+
+    cpu.pc = 0x102
+    cpu.tick()
+    assert cpu.pc == 0x0050
+    assert cpu.pop_stack() == 0x0103
+
+    cpu.pc = 0x103
+    cpu.tick()
+    assert cpu.pc == 0x0058
+    assert cpu.pop_stack() == 0x0104
+
+    cpu.pc = 0x104
+    cpu.tick()
+    assert cpu.pc == 0x0060
+    assert cpu.pop_stack() == 0x0105
