@@ -2,7 +2,7 @@
 
 A Nintendo Gameboy emulator, written in Python 3.
 
-This is very much still a work in progress.  Currently, the majority of CPU instructions are implemented, and a basic MMU is working.  The next steps are to implement the graphics system/PPU, and to add some runtime debugging utilities.
+This is still an unfinished work in progress.  Currently, the CPU instructions are implemented and mostly working, and a basic MMU is in place.  The next steps are to implement the graphics system/PPU and inputs, and to add some runtime debugging utilities.
 
 # Usage
 
